@@ -59,6 +59,8 @@ docker compose exec workbench python -c "from pathlib import Path; Path('/app/da
 
 ## 4. 接入真实多模态模型
 
+完整案例见 **[Qwen-VL 自部署 / OpenAI API](model-connections.md)**。可选 `compose.qwen.yaml` 将 Qwen GPU 服务加入基础 Compose；需要 Linux/NVIDIA，后续操作均保留两个 `-f` 参数。
+
 在页面「模型接入」填写 Base URL、API Key，检测并选择实际模型 ID。接口须接受 Chat Completions 和 PNG `image_url` data URL；发现模型列表成功后，仍需上传合成文档验证视觉能力。
 
 社区版也可在 `.env` 中填写：
@@ -67,6 +69,7 @@ docker compose exec workbench python -c "from pathlib import Path; Path('/app/da
 WORKBENCH_MODEL_BASE_URL=https://vision.example.test/v1
 WORKBENCH_MODEL_NAME=your-vision-model
 WORKBENCH_MODEL_API_KEY=your-private-key
+WORKBENCH_MODEL_REQUEST_PROFILE=compatible
 WORKBENCH_MODEL_LABEL=My vision service
 ```
 
@@ -91,6 +94,7 @@ WORKBENCH_MODEL_LABEL=My vision service
 | `WORKBENCH_TOKEN` | 社区令牌；在线版使用账户登录 |
 | `WORKBENCH_ALLOW_REGISTRATION` | `0`，在线版默认邀请注册 |
 | `WORKBENCH_ALLOWED_MODEL_BASES` | 在线版精确允许列表，多个地址用逗号分隔 |
+| `WORKBENCH_MODEL_REQUEST_PROFILE` | `compatible` 发送 max_tokens/temperature；OpenAI 新版模型选 `openai` |
 | `WORKBENCH_MODEL_*` | 可选社区版初始化模型；在线团队不继承 |
 
 容器数据目录固定为 `/app/data`。`.env.example` 中的 `WORKBENCH_DATA_DIR` 仅供本地 Python 使用，Compose 不用它改写卷挂载。默认命名卷在 Docker 中通常带 Compose 项目前缀；更改项目目录名或 `-p` 会选择另一个卷，不代表原数据被删除。已有部署应固定项目名。

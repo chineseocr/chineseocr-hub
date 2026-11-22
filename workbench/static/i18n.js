@@ -58,6 +58,9 @@ window.WorkbenchI18n = (() => {
             });
         }
         document.getElementById("language-select").value = currentLanguage;
+        const modelGuide = document.getElementById("model-guide-link");
+        if (modelGuide) modelGuide.href = "https://github.com/chineseocr/chineseocr-hub/blob/main/docs/" +
+            (currentLanguage === "en" ? "model-connections.en.md" : "model-connections.md");
     }
 
     const ready = fetch("/assets/locales/en.json")

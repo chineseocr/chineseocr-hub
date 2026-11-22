@@ -680,5 +680,10 @@
   "未提取到值": "Value unavailable",
   "有线框单元格未返回内容，请核对原图。": "Some grid cells have no returned content. Review the source image.",
   "定位契约已变化，请创建新任务": "The localization contract changed. Create a new job.",
-  "空值字段 ({count})": "Empty fields ({count})"
+  "空值字段 ({count})": "Empty fields ({count})",
+  "接口参数模式": "Request parameter profile",
+  "兼容服务 · Qwen / vLLM": "Compatible service · Qwen / vLLM",
+  "OpenAI 官方 API · 新版参数": "OpenAI API · modern parameters",
+  "OpenAI 模式使用 max_completion_tokens，不传 temperature；兼容模式保留原参数。模型发现不会验证图像识别。": "OpenAI mode uses max_completion_tokens and omits temperature. Compatible mode keeps the existing parameters. Model discovery does not verify vision.",
+  "查看 Qwen-VL / OpenAI 接入教程": "Read the Qwen-VL / OpenAI connection guide"
 }

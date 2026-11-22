@@ -2,6 +2,8 @@
 
 ## 0.6.0a1 — 2026-11-22 — Tables and reversible localization
 
+- Add bilingual Qwen3-VL/vLLM GPU Compose and OpenAI API connection tutorials, linked from README, UI and operations guides. Add explicit compatible/OpenAI request profiles with legacy-safe defaults, environment/CLI support and local HTTP regressions; no automatic parameter retries. Qwen GPU execution and live OpenAI inference remain unvalidated.
+
 - Add schema-free mixed KV/table recognition with header/body cells, validated merged spans, source selection and authenticated CSV/HTML exports.
 - Add conservative projection deskew, recorded inverse affine matrices and source polygons; no additional OCR engine or weights.
 - Add bounded contextual text localization and model row/column-band intersections, plus conservative pixel-grid assistance for one large ruled table. Preserve missing positions and original extraction on partial failures.

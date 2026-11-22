@@ -45,6 +45,7 @@ jobs:
         run: |
           docker compose config --quiet
           WORKBENCH_MODE=saas docker compose config --quiet
+          QWEN_API_KEY=ci-configuration-only docker compose -f compose.yaml -f compose.qwen.yaml config --quiet
       - run: docker build -t chineseocr-hub:ci .
       - name: Start, verify and restart an isolated container
         shell: bash

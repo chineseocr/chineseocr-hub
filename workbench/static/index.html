@@ -155,7 +155,7 @@
      <div class="community">
       <b data-i18n="社区版" id="edition-badge">社区版</b>
       <span>
-       v0.5.0a1
+       v0.6.0a1
       </span>
      </div>
      <p data-i18n="自部署 · 数据由你掌控" id="deployment-footer">
@@ -733,6 +733,15 @@
           <span data-i18n="接口密钥">接口密钥</span>
           <input autocomplete="off" data-i18n-placeholder="本地免密服务可留空" id="model-key" placeholder="本地免密服务可留空" type="password"/>
          </label>
+         <label>
+          <span data-i18n="接口参数模式">接口参数模式</span>
+          <select id="model-request-profile">
+           <option value="compatible" data-i18n="兼容服务 · Qwen / vLLM">兼容服务 · Qwen / vLLM</option>
+           <option value="openai" data-i18n="OpenAI 官方 API · 新版参数">OpenAI 官方 API · 新版参数</option>
+          </select>
+         </label>
+         <p class="small" data-i18n="OpenAI 模式使用 max_completion_tokens，不传 temperature；兼容模式保留原参数。模型发现不会验证图像识别。">OpenAI 模式使用 max_completion_tokens，不传 temperature；兼容模式保留原参数。模型发现不会验证图像识别。</p>
+         <p class="small"><a id="model-guide-link" href="https://github.com/chineseocr/chineseocr-hub/blob/main/docs/model-connections.md" target="_blank" rel="noopener noreferrer" data-i18n="查看 Qwen-VL / OpenAI 接入教程">查看 Qwen-VL / OpenAI 接入教程</a></p>
          <div class="two-column">
           <label>
            <span data-i18n="最大输出词元数">

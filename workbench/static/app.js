@@ -779,8 +779,10 @@ function renderProviders() {
     const list = clear("provider-list");
     state.providers.forEach(p => {
         const row = node("div", undefined, "provider-card");
+        const profileLabel = p.request_profile === "openai" ?
+            t("OpenAI 官方 API · 新版参数") : t("兼容服务 · Qwen / vLLM");
         row.append(node("h3", p.name), node("code", p.base_url), node("p", p.model + " · " + (p
-            .has_api_key ? t("已保存密钥") : t("未配置密钥")), "small"), button(t("使用此连接"),
+            .has_api_key ? t("已保存密钥") : t("未配置密钥")), "small"), node("p", profileLabel, "small"), button(t("使用此连接"),
             async () => {
                 await api("/providers/" + p.id + "/default", {});
                 state.providerId = p.id;
@@ -1087,6 +1089,7 @@ $("provider-form").addEventListener("submit", guard(async e => {
         base_url: $("model-url").value,
         model: $("model-id").value,
         api_key: $("model-key").value,
+        request_profile: $("model-request-profile").value,
         max_tokens: Number($("model-tokens").value),
         timeout_seconds: Number($("model-timeout").value)
     });
@@ -1193,7 +1196,9 @@ $("discover-models").addEventListener("click", guard(async () => {
         });
         const models = clear("available-models");
         result.models.forEach(model => option(models, model.id, model.id));
-        if (!$("model-id").value) $("model-id").value = result.models[0].id;
+        // A cloud account may list text/audio/embedding models too. Only a single
+        // advertised model is unambiguous; otherwise let the user choose its ID.
+        if (!$("model-id").value && result.models.length === 1) $("model-id").value = result.models[0].id;
         $("connection-status").textContent = t("连接成功，发现模型：") + result.models.map(m => m
             .id).join(", ");
     } catch (error) {

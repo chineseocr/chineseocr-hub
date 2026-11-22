@@ -15,7 +15,7 @@ v0.5 起先进入「应用管理」，搜索或新建业务场景。点击「安
 | 字段的可选值 | 字段与表格 → 字段右侧「⋯」 | 手动编辑 `enum` 或复制字典的指定版本；导入 JSON Schema 也可配置 |
 | 系统提示词、用户提示词 | 提示词版本 | 系统提示词定义提取原则，用户提示词包含字段结构、文件名、页码等上下文 |
 | 最终文本预览 | 提示词版本 → 查看渲染后的请求 | 用 sample.pdf、第 1、2 页替换变量；仅预览，不调用图像模型 |
-| 服务地址、模型、接口密钥 | 模型接入 | 配置真实推理服务，与应用的业务规则分开保存 |
+| 服务地址、模型、接口密钥、参数模式 | 模型接入 | 配置真实推理服务，与应用的业务规则分开保存；[Qwen/OpenAI 接入案例](model-connections.md) |
 
 点击「保存新版本」同时保存字段和提示词。开始提取或评测时，未保存的草稿也会先保存。历史版本和任务快照不会被覆盖。
 
@@ -67,7 +67,7 @@ v0.5 起先进入「应用管理」，搜索或新建业务场景。点击「安
     → 页面展示、导出或与标准答案比较
 ```
 
-工作台后端使用 FastAPI、SQLite WAL 和单个持久化任务 worker。图像模型在外部独立部署。适配器发送系统提示词、含字段结构的用户提示词，以及页面 PNG 的 data URL；使用 `temperature=0`、非流式输出和连接中配置的最大输出词元数。当前未发送服务端 `response_format/json_schema` 参数，格式约束由提示词和工作台返回后校验共同完成。
+工作台后端使用 FastAPI、SQLite WAL 和单个持久化任务 worker。图像模型在外部独立部署。适配器发送系统提示词、含字段结构的用户提示词，以及页面 PNG 的 data URL；使用非流式输出；`compatible` 参数模式发送 `temperature=0` 和 `max_tokens`，`openai` 模式不传 temperature、改用 `max_completion_tokens`。两者均使用连接中配置的输出预算，不根据模型名称猜测或自动重试。当前未发送服务端 `response_format/json_schema` 参数，格式约束由提示词和工作台返回后校验共同完成。
 
 兼容接口及 `/models` 元信息只能说明模型服务暴露了什么协议和模型标识，不能确定服务内部的训练规则、聊天模板、隐藏提示词或预处理实现。确认那些细节需要对方的启动配置、模型说明和服务源码。工作台源码中没有对方的模型权重或私有服务代码。
 
@@ -78,6 +78,7 @@ v0.5 起先进入「应用管理」，搜索或新建业务场景。点击「安
 | `workbench/domain.py` | 新建应用的默认 `SYSTEM_PROMPT`、`USER_PROMPT`、`INVOICE_SCHEMA`；结构校验与受控变量替换 |
 | `workbench/bootstrap.py` | 空工作空间的票据应用初始化；环境变量模型连接初始化 |
 | `data/workbench.sqlite3` 的 `templates.body` | 页面保存的 `name`、`schema`、`system_prompt`、`user_prompt`；用应用 ID 和版本定位 |
+| `data/workbench.sqlite3` 的 `providers.body` | 模型地址、模型 ID、参数模式和连接设置；API 不提供原地修改，变更时新建连接；旧连接缺少模式时视为 compatible |
 | `data/workbench.sqlite3` 的 `jobs.payload` | 任务使用的字段与提示词版本快照 |
 | `data/workbench.sqlite3` 的 `dictionaries.body` | 字典名称、说明和可选值；以字典 ID 和版本定位 |
 | `workbench/presets.py`、`starter_schemas/` | 公开初始字段结构与双语提示词，不含客户图像 |

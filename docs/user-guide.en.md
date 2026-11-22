@@ -14,6 +14,8 @@ Start the backend using the [README](../README.en.md) or [Docker guide](docker.e
 
 ## 2. Run your first OCR
 
+No model service yet? Start with the [OpenAI API / Qwen-VL connection guide](model-connections.en.md), including exact connection-form values.
+
 1. Under **Model connections**, provide the Base URL and required API key, discover/select the actual model ID and save. In SaaS, this requires admin/owner access and an operator-approved destination.
 2. Open **Extraction**, select the connection and the full-text OCR task.
 3. Upload and select `examples/synthetic-invoice.png` from the source tree, then start extraction. Samples and answers are not preloaded in the container.

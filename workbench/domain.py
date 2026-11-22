@@ -162,6 +162,9 @@ class ProviderInput(BaseModel):
     base_url: str = Field(default="http://localhost:8001/v1", max_length=500)
     model: str = Field(default="", max_length=200)
     api_key: str = Field(default="", max_length=2000)
+    # Explicit wire format, not an inference from a model name or destination host.
+    # Old connections retain the compatible-service request unchanged.
+    request_profile: Literal["compatible", "openai"] = "compatible"
     max_tokens: int = Field(default=4096, ge=128, le=16384)
     timeout_seconds: int = Field(default=90, ge=5, le=180)
 

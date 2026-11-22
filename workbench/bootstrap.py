@@ -39,6 +39,7 @@ def initialize_workspace(store, model_environment=True):
                 base_url=base_url,
                 model=model,
                 api_key=os.environ.get("WORKBENCH_MODEL_API_KEY", ""),
+                request_profile=os.environ.get("WORKBENCH_MODEL_REQUEST_PROFILE", "compatible"),
             )
         except ValidationError:
             # Pydantic's default exception includes input values; startup logs must
@@ -50,7 +51,9 @@ def initialize_workspace(store, model_environment=True):
             (
                 r["id"]
                 for r in store.all("SELECT id,body FROM providers")
-                if json.loads(r["body"]) == configured.model_dump()
+                # Profiles added after the first Alpha must not duplicate an
+                # otherwise identical environment-created legacy connection.
+                if {"request_profile": "compatible", **json.loads(r["body"])} == configured.model_dump()
             ),
             None,
         )

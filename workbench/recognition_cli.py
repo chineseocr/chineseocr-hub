@@ -41,6 +41,7 @@ def main(argv):
             base_url=url,
             model=model,
             api_key=os.environ.get("WORKBENCH_MODEL_API_KEY", ""),
+            request_profile=os.environ.get("WORKBENCH_MODEL_REQUEST_PROFILE", "compatible"),
         )
         with tempfile.TemporaryDirectory(prefix="chineseocr-hub-") as temporary:
             store = Store(temporary)

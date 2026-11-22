@@ -41,6 +41,8 @@ python -m workbench
 
 Open http://127.0.0.1:8765 and sign in with the token in `data/access-token`. Alternatively set `WORKBENCH_TOKEN` (at least 16 characters). The token grants full workspace access. Start the backend instead of opening static/index.html directly.
 
+For step-by-step setup, read **[Qwen-VL self-hosting and OpenAI API](docs/model-connections.en.md)**: prerequisites, optional GPU Compose, exact UI values, parameter profiles, a first recognition and troubleshooting.
+
 Under **Model connections**, save a vision-capable Chat Completions endpoint accepting PNG `image_url` data URLs. Service roots normalize to `/v1`; model discovery does not establish recognition quality. In **Extraction → Recognition task**, choose full-text OCR, multiple documents, or custom field extraction. Use `?lang=en` for English. New workspaces have a starter schema, no files or precomputed scores.
 
 ## CLI and library
@@ -113,6 +115,7 @@ Ports bind host loopback. Managed access needs HTTPS, domain routing, ingress/eg
 | Stage | Guide |
 |---|---|
 | Install and sign in | [Docker](docs/docker.en.md), [Python/ingress](docs/deployment.md), [SaaS](docs/saas.md) |
+| Deploy or purchase a model | [Connection examples](docs/model-connections.en.md): self-hosted Qwen3-VL / OpenAI API |
 | First recognition and UI workflow | [User guide](docs/user-guide.en.md): connect a model, upload synthetic input, review text/tables and PDF source links |
 | Configure and evaluate | [Fields/prompts/dictionaries](docs/configuration.md), [applications](docs/applications.md), [tables](docs/tables-and-localization.md); evaluation steps are in the user guide |
 | Integrate and develop | [API](docs/api.md), [CLI/library](docs/multimodal-ocr.md), [code guide](docs/code-guide.md) |

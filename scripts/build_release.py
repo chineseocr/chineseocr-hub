@@ -20,6 +20,7 @@ ROOT_FILES = {
     "requirements.lock",
     "Dockerfile",
     "compose.yaml",
+    "compose.qwen.yaml",
     ".gitignore",
     ".dockerignore",
     ".env.example",

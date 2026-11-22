@@ -17,6 +17,7 @@ v0.6.0a1 支持 community 本地单工作空间和 saas 在线多租户两种模
 | `WORKBENCH_MODEL_BASE_URL` | 可选模型根地址或 `/v1` 地址 |
 | `WORKBENCH_MODEL_NAME` | 与模型地址一起设置，必须是服务实际提供的 ID |
 | `WORKBENCH_MODEL_API_KEY` | 可选模型密钥，由服务要求决定 |
+| `WORKBENCH_MODEL_REQUEST_PROFILE` | 默认 `compatible`；OpenAI 新版模型用 `openai`，见 [接入案例](model-connections.md) |
 | `WORKBENCH_MODEL_LABEL` | 可选连接名称，未设置时使用模型 ID |
 
 Python 启动不会自行读取 `.env`。在终端导出变量或由进程管理器注入。Docker Compose 会读取项目 `.env` 并传入列明的变量。没有配置模型时工作台仍可打开、编辑和上传，但不能执行 OCR、定位、提取或评测。所有视觉任务统一使用支持图像的多模态服务，不额外安装传统 OCR 引擎。全文与多文档的 API/CLI、调用次数和实例恢复见 [多模态指南](multimodal-ocr.md)。

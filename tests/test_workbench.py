@@ -420,3 +420,58 @@ def test_ui_assets_and_security_headers(client):
     assert client.get("/assets/app.js").status_code == 200
     assert client.get("/assets/style.css").status_code == 200
     assert client.get("/assets/../../data/access-token").status_code == 404
+
+
+@pytest.mark.parametrize("profile", [None, "compatible", "openai"])
+def test_model_request_profiles_through_saved_connection_and_worker(tmp_path, backend_server, profile):
+    """Exercise the real HTTP adapter with a local fixture, including old saved connections.
+
+    New OpenAI requests must not contain rejected legacy parameters. Qwen/vLLM
+    connections keep their existing request; neither branch makes retry requests.
+    """
+    from workbench.engine import Worker
+
+    server, handler = backend_server
+    with TestClient(create_app(tmp_path, start_worker=False)) as client:
+        store = client.app.state.store
+        client.headers["Authorization"] = "Bearer " + store.token
+        body = {
+            "name": "Synthetic protocol check",
+            "model": "test-vision",
+            "base_url": "http://127.0.0.1:" + str(server.server_port) + "/v1",
+            "api_key": "synthetic-protocol-secret",
+            "max_tokens": 2048,
+        }
+        if profile is not None:
+            body["request_profile"] = profile
+        response = client.post("/api/providers", json=body)
+        assert response.status_code == 200
+        assert "synthetic-protocol-secret" not in response.text
+        provider = response.json()
+        assert provider["request_profile"] == (profile or "compatible")
+        if profile is None:
+            # Simulate the database shape created before request profiles existed.
+            saved = json.loads(store.one("SELECT body FROM providers WHERE id=?", (provider["id"],))["body"])
+            saved.pop("request_profile")
+            store.execute("UPDATE providers SET body=? WHERE id=?", (json.dumps(saved), provider["id"]))
+        file = client.post("/api/files", files={"file": ("synthetic.png", make_sample().getvalue())}).json()
+        template = client.get("/api/bootstrap").json()["templates"][0]
+        created = client.post(
+            "/api/jobs",
+            json={"template_id": template["id"], "provider_id": provider["id"], "file_ids": [file["id"]]},
+        )
+        assert created.status_code == 200
+        Worker(store).process(created.json()["id"])
+        assert client.get("/api/jobs/" + created.json()["id"]).json()["status"] == "succeeded"
+        assert len(handler.received) == 1
+        path, authorization, payload = handler.received[0]
+        assert path == "/v1/chat/completions"
+        assert authorization == "Bearer synthetic-protocol-secret"
+        assert payload["messages"][1]["content"][1]["image_url"]["url"].startswith("data:image/png;base64,")
+        assert payload["stream"] is False
+        if profile == "openai":
+            assert payload["max_completion_tokens"] == 2048
+            assert "max_tokens" not in payload and "temperature" not in payload
+        else:
+            assert payload["max_tokens"] == 2048 and payload["temperature"] == 0
+            assert "max_completion_tokens" not in payload

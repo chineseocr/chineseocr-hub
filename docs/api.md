@@ -19,12 +19,13 @@ curl -H "Authorization: Bearer $WORKBENCH_ACCESS_TOKEN" "$WORKBENCH_URL/api/boot
   "base_url": "http://localhost:8001/v1",
   "model": "your-vision-model",
   "api_key": "",
+  "request_profile": "compatible",
   "max_tokens": 4096,
   "timeout_seconds": 90
 }
 ```
 
-提交到 `POST /api/providers`。密钥只在此输入，后续响应仅返回 `has_api_key`。
+提交到 `POST /api/providers`。密钥只在此输入，后续响应仅返回 `has_api_key`。`request_profile` 可为 `compatible`（默认，Qwen/vLLM 的 max_tokens + temperature=0）或 `openai`（max_completion_tokens，不传 temperature）；`max_tokens` 在两种模式中都是输出预算。已有连接不能原地编辑，新建连接后重新选择；不会自动重试其他参数模式。完整 [中英文接入案例](model-connections.md)。
 
 上传图片/PDF，读取响应的 `id`：
 

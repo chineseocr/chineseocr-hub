@@ -59,6 +59,8 @@ Registration is invitation-only by default; email is not sent. Team administrato
 
 ## 4. Connect a multimodal service
 
+See **[self-hosted Qwen-VL / OpenAI API](model-connections.en.md)** for complete examples. Optional `compose.qwen.yaml` adds a Linux/NVIDIA model service; retain both `-f` arguments for subsequent operations.
+
 Use **Model connections** to save a Base URL, API key and discovered real model ID. The endpoint must accept Chat Completions with PNG `image_url` data URLs. Model discovery alone does not establish visual capabilities; run a synthetic sample.
 
 Community mode can also initialize a connection from `.env`:
@@ -67,6 +69,7 @@ Community mode can also initialize a connection from `.env`:
 WORKBENCH_MODEL_BASE_URL=https://vision.example.test/v1
 WORKBENCH_MODEL_NAME=your-vision-model
 WORKBENCH_MODEL_API_KEY=your-private-key
+WORKBENCH_MODEL_REQUEST_PROFILE=compatible
 WORKBENCH_MODEL_LABEL=My vision service
 ```
 
@@ -91,6 +94,7 @@ Container loopback is not host loopback. On Linux, a host model must listen on a
 | `WORKBENCH_TOKEN` | Community administrative token; SaaS uses accounts |
 | `WORKBENCH_ALLOW_REGISTRATION` | `0`, invitation-only SaaS |
 | `WORKBENCH_ALLOWED_MODEL_BASES` | Exact comma-separated SaaS destinations; blank denies all |
+| `WORKBENCH_MODEL_REQUEST_PROFILE` | `compatible` sends max_tokens/temperature; use `openai` for modern OpenAI parameters |
 | `WORKBENCH_MODEL_*` | Optional community model initialization only |
 
 Container storage is fixed at `/app/data`. `WORKBENCH_DATA_DIR` in the example file is for local Python, not a Compose mount override. Named volumes normally include the Compose project prefix. Keep the same project name when upgrading; changing directory names or `-p` can select a different volume.

@@ -1,0 +1,57 @@
+# Optional Linux/NVIDIA model service. Merge with the normal workbench Compose:
+# docker compose -f compose.yaml -f compose.qwen.yaml up --build -d
+# Set a private QWEN_API_KEY in .env first. No model port is published to the host.
+services:
+  workbench:
+    depends_on:
+      qwen-vl:
+        condition: service_healthy
+
+  qwen-vl:
+    image: vllm/vllm-openai:v0.34.0
+    # Start with single-page input; eight allowed images do not guarantee that
+    # eight pages fit the context/VRAM budget. Tune on your actual GPU and input.
+    command:
+      - Qwen/Qwen3-VL-8B-Instruct
+      - --served-model-name
+      - qwen-vl
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --max-model-len
+      - "8192"
+      - --max-num-seqs
+      - "1"
+      - --limit-mm-per-prompt
+      - '{"image":8,"video":0}'
+    environment:
+      VLLM_API_KEY: ${QWEN_API_KEY:?Set a private QWEN_API_KEY in .env}
+      VLLM_NO_USAGE_STATS: "1"
+    volumes:
+      - qwen-model-cache:/root/.cache/huggingface
+    shm_size: 2gb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      start_period: 120s
+      retries: 90
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 200s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  qwen-model-cache:

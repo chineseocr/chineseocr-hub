@@ -2,6 +2,8 @@
 
 v0.6.0a1 的全文转写、文档定位、分类和业务字段提取统一使用所选多模态模型。不依赖传统 OCR 引擎，不下载模型权重；可连接自行部署或云端的图像 Chat Completions 服务。服务必须接受 PNG `image_url` data URL，且能遵守输出契约。模型发现只检查协议，不证明识别质量。
 
+首次部署模型请按 [Qwen-VL / OpenAI API 接入教程](model-connections.md) 操作；[English](model-connections.en.md)。
+
 ## 页面使用
 
 「提取工作台 → 识别能力」有三个入口：
@@ -63,6 +65,7 @@ v0.6.0a1 的全文转写、文档定位、分类和业务字段提取统一使�
 export WORKBENCH_MODEL_BASE_URL=https://vision.example.test/v1
 export WORKBENCH_MODEL_NAME=your-vision-model
 export WORKBENCH_MODEL_API_KEY=your-private-key
+export WORKBENCH_MODEL_REQUEST_PROFILE=compatible  # OpenAI modern parameters: openai
 python -m workbench ocr examples/synthetic-invoice.png --format text
 python -m workbench ocr examples/synthetic-multipage.pdf --format markdown --output invoice.md
 python -m workbench documents combined-documents.png --format json --output instances.json
@@ -83,6 +86,7 @@ provider = ProviderInput(
     base_url=os.environ["WORKBENCH_MODEL_BASE_URL"],
     model=os.environ["WORKBENCH_MODEL_NAME"],
     api_key=os.environ.get("WORKBENCH_MODEL_API_KEY", ""),
+    request_profile=os.environ.get("WORKBENCH_MODEL_REQUEST_PROFILE", "compatible"),
 ).model_dump()
 result = recognize(provider, Path("examples/synthetic-invoice.png").read_bytes())
 if result["status"] == "succeeded":

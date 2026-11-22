@@ -82,6 +82,8 @@ python -m workbench --mode saas --data-dir data
 
 ## 使用真实模型
 
+从零接入请看 **[Qwen-VL 自部署与 OpenAI API 教程](docs/model-connections.md)**：包括服务器准备、可选 GPU Compose、页面填写示例、参数模式、首次识别和排障；提供 [English](docs/model-connections.en.md)。
+
 1. 在「模型接入」填写 Base URL 和 API Key，检测连接、选择实际模型 ID 并保存。
 2. 服务须支持 `POST /chat/completions` 和 PNG `image_url` data URL。选择连接，上传合成票据先验证。
 3. 在「提取工作台 → 识别能力」选全文 OCR、通用表格或多文档，设置页范围/旋转/纠偏/定位策略，开始识别。
@@ -154,6 +156,7 @@ docker compose exec workbench cat /app/data/access-token
 | 阶段 | 文档 |
 |---|---|
 | 部署与登录 | [Docker 指南](docs/docker.md)、[Python/公网部署](docs/deployment.md)、[在线多租户](docs/saas.md) |
+| 部署或购买模型 | [模型接入案例](docs/model-connections.md)：自部署 Qwen3-VL / 接入 OpenAI API |
 | 第一次识别与页面操作 | [完整操作手册](docs/user-guide.md)：模型接入 → 合成样本 → 文字/表格 → PDF 页签与来源框核对 |
 | 业务配置与验证 | [字段、提示词与字典](docs/configuration.md)、[应用及证件模板](docs/applications.md)、[表格与定位](docs/tables-and-localization.md)；数据集步骤见操作手册 |
 | 系统集成与开发 | [API](docs/api.md)、[CLI/Python](docs/multimodal-ocr.md)、[代码阅读](docs/code-guide.md) |

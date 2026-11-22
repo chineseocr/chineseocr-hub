@@ -2,6 +2,8 @@
 
 2026-11-22，macOS arm64 / CPython 3.12.16。以下记录本地与首次远程 CI；后续提交以 [GitHub Actions](https://github.com/chineseocr/chineseocr-hub/actions) 的实际运行结果为准。尚未发布镜像/PyPI 或部署公网。
 
+同日模型接入教程更新：新增 [中文](model-connections.md) / [English](model-connections.en.md) 的 Qwen3-VL/vLLM 与 OpenAI API 从零案例，以及可选 GPU Compose。全量 **127 项通过（33.44s）**、Ruff 检查/格式检查通过；本地 HTTP 回归覆盖旧连接、两种参数模式的实际请求、PNG、密钥脱敏、单次调用和环境初始化幂等。浏览器检查中英文参数模式、按语言切换的教程链接，以及切换语言后保留所选模式；未保存真实凭据或调用模型。22 份文档相对链接、46 个 Bash 代码块语法、Compose/CI YAML 与页面翻译键检查通过。官方 Docker Registry 确认 `vllm/vllm-openai:v0.34.0` 标签存在，并核对该版本上游入口支持 `vllm serve`；只读取清单和源码，没有下载模型镜像或权重。**本机没有 NVIDIA GPU，也未调用真实 OpenAI API；Qwen GPU 推理和真实 OpenAI 识别仍未实测。** CI 新增合并 GPU Compose 的配置解析，不启动 GPU 容器。
+
 **首次公开 CI 已通过**：[运行 45024664543](https://github.com/chineseocr/chineseocr-hub/actions/runs/45024664543)，源码提交 `23c5800`。Linux/macOS 的全量测试、Ruff、合成示例生成、发布包校验和解压冷启动均通过；运行依赖 pip-audit 通过。Linux 实际构建 Docker 镜像，验证非 root 社区容器的鉴权/上传/重启持久化，以及 SaaS 账户与租户隔离/重启持久化；Compose 在 community/saas 下的配置检查通过。CI 未调用私有模型，没有上传客户资料。容器验证通过不等于完整 Compose 运维、真实数据恢复演练、其他架构或生产容量已验收。该轮出现旧 Action 的 Node 20 弃用提示，后续提交更新为官方 Node 24 Action 并修正 README 本机链接格式。
 
 同日 Docker/文档补充：更新非 root Dockerfile 注释、Compose 镜像/端口/基础镜像参数、宿主机映射和日志轮转，新增中英文 Docker 与页面操作手册。Compose/CI YAML 解析、环境变量对应关系及文档 Bash 语法检查通过；备份/恢复 Python 片段以临时合成数据完成双语往返验证，保留文件内容和 0600 密钥权限，向非空目录恢复被拒绝。这些本地片段检查独立于上述 Linux 容器验证，不构成真实数据恢复演练；本机仍未安装 Docker。

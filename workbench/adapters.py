@@ -35,10 +35,16 @@ class OpenAIBackend:
         payload = {
             "model": provider["model"],
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": content}],
-            "temperature": 0,
-            "max_tokens": provider["max_tokens"],
             "stream": False,
         }
+        # New OpenAI models use max_completion_tokens and may reject temperature.
+        # An explicit profile keeps each immutable connection's wire format stable.
+        # Missing profile means a pre-existing Qwen/vLLM-compatible connection:
+        # preserve its old parameters and never retry a rejected paid request.
+        if provider.get("request_profile", "compatible") == "openai":
+            payload["max_completion_tokens"] = provider["max_tokens"]
+        else:
+            payload.update(temperature=0, max_tokens=provider["max_tokens"])
         start = time.monotonic()
         try:
             # Ignore ambient proxy variables; endpoint choice is an explicit administrator action.

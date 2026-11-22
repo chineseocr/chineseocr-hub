@@ -50,6 +50,43 @@ def test_environment_bootstrap_is_idempotent_and_never_returns_key(tmp_path, mon
             assert "test-bootstrap-secret" not in response.text
 
 
+def test_legacy_environment_connection_does_not_duplicate_and_openai_profile_is_explicit(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setenv("WORKBENCH_MODEL_BASE_URL", "https://vision.example.test/v1")
+    monkeypatch.setenv("WORKBENCH_MODEL_NAME", "synthetic-model")
+    monkeypatch.setenv("WORKBENCH_MODEL_REQUEST_PROFILE", "compatible")
+    with TestClient(create_app(tmp_path)) as client:
+        store = client.app.state.store
+        row = store.one("SELECT id,body FROM providers")
+        old_body = json.loads(row["body"])
+        old_body.pop("request_profile")
+        store.execute("UPDATE providers SET body=? WHERE id=?", (json.dumps(old_body), row["id"]))
+    with TestClient(create_app(tmp_path)) as client:
+        assert len(client.app.state.store.all("SELECT id FROM providers")) == 1
+    monkeypatch.setenv("WORKBENCH_MODEL_REQUEST_PROFILE", "openai")
+    with TestClient(create_app(tmp_path)) as client:
+        store = client.app.state.store
+        assert len(store.all("SELECT id FROM providers")) == 2
+        assert store.get("providers", store.metadata("default_provider_id"))["request_profile"] == "openai"
+
+
+def test_invalid_request_profile_is_rejected_without_echoing_secret(tmp_path):
+    with TestClient(create_app(tmp_path)) as client:
+        client.headers["Authorization"] = "Bearer " + client.app.state.store.token
+        response = client.post(
+            "/api/providers",
+            json={
+                "name": "Invalid",
+                "model": "synthetic",
+                "request_profile": "guess",
+                "api_key": "hidden-secret",
+            },
+        )
+        assert response.status_code == 422
+        assert "hidden-secret" not in response.text
+
+
 def test_old_fixed_output_records_are_archived_not_relabelled(tmp_path):
     store = Store(tmp_path)
     provider = store.put("providers", {"name": "Legacy", "kind": "demo"})
