@@ -15,7 +15,7 @@
 | `workbench/bootstrap.py` | 空库初始化、部署环境连接、旧数据归档 | 不预置文件/答案/分数；相同环境配置不能重复新增；不覆盖历史快照 |
 | `workbench/documents.py` | 输入校验与页面 PNG | PDFium 必须串行；透明图先白底合成；预览就是实际模型输入 |
 | `workbench/adapters.py` | 模型发现与图像 Chat Completions | /models 只检查协议；真正能力用图像验证。不要泄漏密钥或上游错误正文 |
-| `workbench/vision.py`、`detection.py` | 独立多模态 OCR/定位契约和旋转/裁剪坐标映射 | 模型位置不代表准确性，缺失位置/置信度留空；固定契约提示词提交时快照 |
+| `workbench/vision.py`、`detection.py` | 独立多模态 OCR/定位契约和旋转/裁剪坐标映射 | 归一化框映射到来源坐标，缺失位置/置信度为 null；固定契约提示词提交时快照 |
 | `workbench/recognition.py`、`recognition_cli.py` | 全文与多文档任务、类别路由、实例恢复、独立 CLI | 每阶段校验模型目标并共享并发限制；定位先落库，实例失败不丢弃已完成同页结果 |
 | `workbench/engine.py` | 任务预检、幂等、原子批次、单 worker 与恢复 | 一单元一检查点；中断中的请求仍可能重复计费，不能声称恰好一次 |
 | `workbench/accounts.py` | 账户、密码散列、成员、会话、邀请、接口密钥及审计 | 所有随机凭据仅存散列；公开账户字段不能包含密码散列 |

@@ -191,4 +191,4 @@ docker compose up -d --no-build --pull never
 
 默认只发布到宿主机 loopback。公网部署应由宿主机 HTTPS 反向代理转发到该端口，并设置域名、可信代理来源、请求体/速率限制和备份。不要直接把社区共享令牌当成面向不同客户的账号体系。配置示例与实现限制见 [部署说明](deployment.md)、[安全说明](../SECURITY.md)。
 
-本文配置依据 Docker 官方 [Compose 服务配置](https://docs.docker.com/reference/compose-file/services/)、[命名卷](https://docs.docker.com/engine/storage/volumes/) 和 [一次性运行命令](https://docs.docker.com/reference/cli/docker/compose/run/)。2026-11-22 Linux CI 已通过实际镜像构建、非 root 社区容器及 SaaS 容器的鉴权/上传/隔离/重启持久化验证。Compose 两种模式的配置校验通过；整条 Compose 部署、真实数据备份恢复、其他架构和生产容量不在该次验证范围。本机仍未安装 Docker；详见 [验证记录](validation.md)。
+本文配置依据 Docker 官方 [Compose 服务配置](https://docs.docker.com/reference/compose-file/services/)、[命名卷](https://docs.docker.com/engine/storage/volumes/) 和 [一次性运行命令](https://docs.docker.com/reference/cli/docker/compose/run/)。容器自动化范围见 [测试文档](validation.md)。

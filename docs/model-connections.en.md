@@ -2,7 +2,7 @@
 
 [中文](model-connections.md) · [User guide](user-guide.en.md) · [Docker operations](docker.en.md)
 
-For the current v0.6 Alpha source; official references checked **2026-11-22**. The workbench manages files, prompts and results. A separate model service performs recognition.
+For v0.6 Alpha. The workbench manages files, prompts and results. A separate model service performs recognition.
 
 | Situation | Route |
 |---|---|
@@ -36,7 +36,7 @@ Under **Model connections**, fill in:
 
 Enter the intended model ID before discovery. An account's list may also contain text/audio/embedding models. Discovery checks the list, not vision or accuracy. Save and select the connection.
 
-This example uses [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), which documents image input and Chat Completions support. Check account access and [deprecations](https://developers.openai.com/api/docs/deprecations); the deprecated GPT-4.1 family is not the new-deployment default here.
+This example uses [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), which documents image input and Chat Completions support. Check account access and [deprecations](https://developers.openai.com/api/docs/deprecations); confirm the chosen model remains available before deployment.
 
 The `openai` profile sends `max_completion_tokens` and omits `temperature`. `compatible` retains `max_tokens` and `temperature=0` for Qwen/vLLM-compatible services. There is no automatic paid retry with alternate parameters. Old connections default to compatible mode; create a new connection and select it in your application release to change modes.
 
@@ -61,9 +61,9 @@ Environment initialization uses 4096 output tokens and a 90-second timeout. Crea
 
 ## 3. Example B: deploy Qwen-VL privately
 
-The fixed example is **`Qwen/Qwen3-VL-8B-Instruct` with `vllm/vllm-openai:v0.34.0`**, not a promise of future latest versions. Use a visual model; changing to text-only, Thinking or quantized checkpoints can require different configuration.
+The fixed example is **`Qwen/Qwen3-VL-8B-Instruct` with `vllm/vllm-openai:v0.34.0`**. Use a visual model; changing to text-only, Thinking or quantized checkpoints can require different configuration.
 
-An operator must prepare Linux, compatible NVIDIA drivers, Docker/Compose v2 and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Check host `nvidia-smi`, then verify GPU access inside containers using NVIDIA's instructions. This NVIDIA Compose example does not run on macOS Docker Desktop. VRAM depends on weights, the vision encoder, input size, context and concurrency; loading weights does not establish multi-page capacity.
+An operator must prepare Linux, compatible NVIDIA drivers, Docker/Compose v2 and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). Check host `nvidia-smi`, then verify GPU access inside containers using NVIDIA's instructions. This NVIDIA Compose example does not run on macOS Docker Desktop. VRAM must accommodate weights, the vision encoder and inference caches. Input size, context and concurrency affect total usage.
 
 From the project root, copy `.env.example` only if `.env` does not exist. Replace both placeholder secrets with the **same** private random key:
 
@@ -125,7 +125,7 @@ The example limits concurrency to one and context to 8192 tokens, allowing up to
 4. Try `synthetic-table.png`, then `synthetic-table-multipage.pdf` for table structure and linked PDF page review.
 5. Configure credential applications only after this first check. Evaluate authorized representative samples before publishing a fixed application version.
 
-Localization, multiple instances and contextual refinement can add requests. A connected model does not guarantee correct text, coordinates or credential fields. Upload examples explicitly; runtime images do not preload customer samples.
+Localization, multiple instances and contextual refinement can add requests. Upload example files explicitly.
 
 ## 5. Troubleshooting
 
@@ -145,10 +145,8 @@ Localization, multiple instances and contextual refinement can add requests. A c
 
 Upstream error bodies are intentionally hidden to protect documents/secrets. Debug in controlled operator environments; do not publish private request bodies in Issues.
 
-## 6. Validation boundary
+## 6. Protocol compatibility
 
 Connection API/UI, environment initialization and CLI support `request_profile=compatible/openai`; CLI reads `WORKBENCH_MODEL_REQUEST_PROFILE`. No existing compatible connection is silently migrated. Azure-specific paths/authentication, Responses-only services, audio and image generation are outside this example.
-
-Local HTTP fixtures verify actual payloads, PNG data URLs, one-call execution, redaction and legacy/environment compatibility. **No real OpenAI API request or NVIDIA Qwen deployment was executed for this tutorial.** Other live multimodal checks are documented in [validation](validation.md).
 
 References: [Qwen model card](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct), [vLLM Docker](https://docs.vllm.ai/en/stable/deployment/docker/), [server options](https://docs.vllm.ai/en/stable/cli/serve/), [v0.34.0 release](https://github.com/vllm-project/vllm/releases/tag/v0.34.0), [OpenAI vision](https://developers.openai.com/api/docs/guides/images-vision).

@@ -1,4 +1,4 @@
-"""Generate public fixtures from scratch. Never reads legacy/customer assets."""
+"""Generate the project's public invoice, PDF and table examples."""
 
 import io
 import json
@@ -20,7 +20,8 @@ SAMPLE_RESULT = {
 }
 
 
-def make_sample():
+def make_sample(invoice_number="INV-2026-001"):
+    """Draw one invoice; allow distinct numbers for the multiple-document example."""
     from PIL import ImageDraw
 
     image = Image.new("RGB", (1000, 1250), "#ffffff")
@@ -30,7 +31,7 @@ def make_sample():
         "SYNTHETIC INVOICE / NOT A REAL RECEIPT",
         "",
         "Example Supplies",
-        "Invoice: INV-2026-001",
+        "Invoice: " + invoice_number,
         "Date: 2026-01-01",
         "",
         "Description          Quantity          Amount",
@@ -39,7 +40,7 @@ def make_sample():
         "",
         "Total: USD 120.00",
         "",
-        "Created for testing. No customer or personal data.",
+        "ChineseOCR Hub sample invoice.",
     ]
     for index, line in enumerate(lines):
         draw.text((105, 125 + index * 62), line, fill="#223049", font_size=24)
@@ -47,6 +48,19 @@ def make_sample():
     image.save(buffer, "PNG")
     buffer.seek(0)
     return buffer
+
+
+def make_multiple_invoices():
+    """Place two separate invoices on a page for localization and crop review.
+
+    The 1600px canvas fits the workbench preview limit. Each invoice has a
+    different number so users can distinguish the two returned instances.
+    """
+    sheet = Image.new("RGB", (1600, 1000), "#e8edf4")
+    for x, number in ((40, "INV-2026-001"), (840, "INV-2026-002")):
+        with Image.open(make_sample(number)) as invoice:
+            sheet.paste(invoice.resize((720, 900), Image.Resampling.LANCZOS), (x, 50))
+    return sheet
 
 
 def make_table_sample():
@@ -86,6 +100,7 @@ def main():
     folder.mkdir(exist_ok=True)
     sample = make_sample()
     (folder / "synthetic-invoice.png").write_bytes(sample.getvalue())
+    make_multiple_invoices().save(folder / "synthetic-multiple-invoices.png")
     page1 = Image.open(sample).convert("RGB")
     page2 = Image.new("RGB", page1.size, "white")
     draw = ImageDraw.Draw(page2)
@@ -144,7 +159,7 @@ def main():
     }
     for name, body in fixtures.items():
         (folder / name).write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("Generated synthetic fixtures in examples/ (no customer inputs).")
+    print("Generated public examples in examples/.")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # 参与贡献
 
-先阅读 README 的能力边界和 SECURITY.md。使用 Python 3.12，安装 requirements-dev.txt，运行 pytest、ruff check 与 ruff format --check。
+先阅读 [功能与限制](docs/ocr-capabilities.md) 和 [安全说明](SECURITY.md)。使用 Python 3.12，安装 requirements-dev.txt，运行 pytest、ruff check 与 ruff format --check。
 
 提交问题请描述版本、系统、模型协议/名称、脱敏配置、预期和实际结果。尽量附合成复现样例，不上传真实个人资料或客户文档。模型密钥、数据库和 data 目录不应提交。
 

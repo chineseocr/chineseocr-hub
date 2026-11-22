@@ -2,7 +2,7 @@
 
 [English](model-connections.en.md) · [页面操作手册](user-guide.md) · [Docker 运维](docker.md)
 
-适用：当前 v0.6 Alpha 源码，官方资料核对日期 **2026-11-22**。本教程区分“模型服务”和“工作台”：工作台负责上传、提示词、任务和结果；图像由你选择的模型识别。
+适用版本：v0.6 Alpha。本教程区分“模型服务”和“工作台”：工作台负责上传、提示词、任务和结果；图像由你选择的模型识别。
 
 | 你的情况 | 从哪里开始 |
 |---|---|
@@ -44,7 +44,7 @@
 
 先填写模型标识，再点击「检测连接并获取模型」。列表可能包含文本、音频、嵌入等其他模型；需要确认实际 ID，不把列表第一项当成视觉模型。检测只验证模型列表接口，不发送文档，也不验证识别精度。点击「保存并选择此连接」。
 
-该案例选择官方支持图像输入与 Chat Completions 的 [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)，不保证每个账户均可使用。模型停用与替代信息以 [官方弃用表](https://developers.openai.com/api/docs/deprecations) 为准；不再把已标记弃用的 GPT-4.1 系列作为新部署默认教程。
+该案例选择官方支持图像输入与 Chat Completions 的 [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)，实际可用模型以账户权限为准。模型停用与替代信息以 [官方弃用表](https://developers.openai.com/api/docs/deprecations) 为准；部署时确认目标模型仍在服务期内。
 
 ### 为什么要选择 OpenAI 参数模式
 
@@ -75,11 +75,11 @@ docker compose up -d --build --force-recreate
 
 ### 服务器准备
 
-本案例使用 **`Qwen/Qwen3-VL-8B-Instruct` + `vllm/vllm-openai:v0.34.0`**。这是一组固定教程版本，不承诺是未来最新版本。模型名称含 `VL`，不要误用仅文本的 Qwen，也不要直接换成 Thinking/量化版本而假设配置和显存需求不变。
+本案例使用 **`Qwen/Qwen3-VL-8B-Instruct` + `vllm/vllm-openai:v0.34.0`**。模型名称含 `VL`，不要误用仅文本的 Qwen，也不要直接换成 Thinking/量化版本而假设配置和显存需求不变。
 
 由服务器管理员准备 Linux、兼容的 NVIDIA 驱动、Docker/Compose v2 和 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)。先运行 `nvidia-smi` 确认宿主机驱动，再按 NVIDIA 官方说明验证容器可使用 GPU。此 GPU Compose 例子不适用于 macOS Docker Desktop。
 
-显存需求取决于权重、视觉编码器、图像数量、上下文及并发；8B 权重可以装入不代表多页推理也能装入。先单页、单并发验证，再据实测增加资源或选择更小的 VL 模型。本机没有 NVIDIA GPU，不提供未经测试的显存承诺。
+显存需同时容纳权重、视觉编码器和推理缓存，图像数量、上下文及并发都会影响占用。先单页、单并发运行，再根据资源占用增加上下文或选择更小的 VL 模型。
 
 ### 启动工作台和模型两个服务
 
@@ -139,17 +139,17 @@ with urllib.request.urlopen(request, timeout=10) as response:
 
 ### 上下文、图像数与 PDF
 
-教程配置为单并发、8192 上下文词元、最多 8 张图像。**允许 8 张不代表 8 页一定放得下**：页面图像词元、提示词和输出共同占用上下文，也会增加显存。先全文 OCR/通用表格逐页测试，联合字段提取先选一页；上下文不足时缩小页范围或根据硬件调整 `compose.qwen.yaml`，重新创建模型容器。不能只提高工作台输出上限，忽略服务的总上下文。
+教程配置为单并发、8192 上下文词元、最多 8 张图像。页面图像词元、提示词和输出共同占用上下文，实际可处理页数还取决于每页大小与输出预算。先全文 OCR/通用表格逐页测试，联合字段提取先选一页；上下文不足时缩小页范围或根据硬件调整 `compose.qwen.yaml`，重新创建模型容器。不能只提高工作台输出上限，忽略服务的总上下文。
 
-## 4. 两个案例接入后都这样验收
+## 4. 运行第一个识别任务
 
 1. 工作台选择新连接和「全文 OCR · 多模态识别」。
 2. 上传源码中的 `examples/synthetic-invoice.png`，仅选此文件，使用直接定位开始识别。此时才发送页面 PNG 和提示词，OpenAI 会产生 API 用量，自部署也会占用 GPU。
 3. 检查原文、原始响应、JSON 和任务状态。模型列表成功但任务失败时，按下表检查。
 4. 再用 `examples/synthetic-table.png` 测试通用表格，用 `synthetic-table-multipage.pdf` 测试页签和来源联动。
-5. 最后才安装并调试对应证件应用，使用有授权的代表性样本验收，保存提示词版本、评测后再发布。
+5. 安装对应证件应用，按业务需求调整提示词，使用数据集对比版本后发布。
 
-普通识别、表格、字段提取都使用所选连接；多证件和精细定位可能追加多次模型调用。接通服务不代表文字、坐标或证件字段已达到业务精度。测试文件须手动上传；模型镜像和工作台运行镜像不预装客户样本。
+普通识别、表格、字段提取都使用所选连接；多证件和精细定位可能追加多次模型调用。示例文件须手动上传。
 
 ## 5. 常见错误
 
@@ -157,7 +157,7 @@ with urllib.request.urlopen(request, timeout=10) as response:
 |---|---|
 | 401 / 403 | 模型 API Key、项目权限是否正确；不要使用工作台登录令牌代替 |
 | 404 / 模型不存在 | Base URL 是否误带 endpoint；模型是否下线；Qwen 别名是否为 `qwen-vl` |
-| 检测成功，识别却失败 | 模型是否支持图像；发现只检查 `/models`，不是视觉验收 |
+| 检测成功，识别却失败 | 模型是否支持图像；发现只检查 `/models`，未检查图像输入 |
 | OpenAI 400 / 参数不支持 | 确认选用 OpenAI 新版参数模式；旧连接需新建后重新选择 |
 | 429 | 检查上游速率/额度，减少并发；不要连续重跑以免增加费用 |
 | 连接超时 | 从工作台所在容器/服务器检查网络；浏览器能访问不代表后端可达 |
@@ -169,10 +169,8 @@ with urllib.request.urlopen(request, timeout=10) as response:
 
 页面错误不会回显上游完整响应，以免泄露密钥或文档；定位问题需要在运维控制的环境中排查，不要把私有请求全文贴到公开 Issue。
 
-## 6. 兼容性与验证范围
+## 6. 接口兼容
 
 当前连接配置、API、环境初始化和 CLI 都支持 `request_profile=compatible/openai`，CLI 使用 `WORKBENCH_MODEL_REQUEST_PROFILE`；已有兼容连接继续可用。模型能力和账号权限以服务方为准。Azure OpenAI 的专用路径/鉴权、仅 Responses API、音频接口和图像生成接口不在本例适配范围。
-
-已用本地 HTTP 协议夹具检查旧连接、兼容模式和 OpenAI 模式的实际请求、图像 data URL、密钥脱敏、单次调用，以及环境初始化兼容性；这不是 OpenAI 真实账号或 Qwen GPU 的推理实测。**本机没有部署 Qwen GPU，也未为此教程调用真实 OpenAI API**。已有其他真实多模态服务验证见 [验证记录](validation.md)。
 
 官方依据：[Qwen3-VL 模型卡](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct)、[vLLM Docker](https://docs.vllm.ai/en/stable/deployment/docker/)、[vLLM 参数](https://docs.vllm.ai/en/stable/cli/serve/)、[v0.34.0 发布](https://github.com/vllm-project/vllm/releases/tag/v0.34.0)、[OpenAI 视觉输入](https://developers.openai.com/api/docs/guides/images-vision)。

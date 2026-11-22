@@ -6,7 +6,16 @@ v0.6.0a1 支持 community 本地单工作空间和 saas 在线多租户两种模
 
 ## 启动与持久化
 
-推荐 Python 3.12、macOS/Linux，或 Docker/WSL2。按 README 用锁文件安装，执行 `python -m workbench`。默认监听 `127.0.0.1:8765`；数据目录为当前目录的 `data/`。将整个数据目录保存在可写持久盘，不能只保存 SQLite 文件而丢弃原件/页面。
+在项目根目录使用 Python 3.12，macOS/Linux 或 WSL2 执行：
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install --require-hashes -r requirements.lock
+python -m workbench
+```
+
+默认监听 `127.0.0.1:8765`，数据目录为当前目录的 `data/`。另开终端读取 `cat data/access-token`，在浏览器登录，然后配置模型连接。将整个数据目录保存在可写持久盘，备份包含 SQLite 及原件/页面。
 
 同一目录只运行一个进程，不加 `--workers`，不通过多容器共享这个目录扩容。系统文件锁会阻止第二个进程，避免启动恢复重置另一个实例的任务。
 

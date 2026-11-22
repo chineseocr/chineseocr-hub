@@ -44,7 +44,7 @@ python -m workbench tables examples/synthetic-table-multipage.pdf --format json
 python -m workbench ocr examples/synthetic-invoice.png --position-mode contextual
 ```
 
-凭据和模型地址沿用 README 中的环境变量；不将它们写入命令行参数。`--no-grid-assist` 可关闭线框辅助。
+凭据和模型地址使用 [命令行准备](../examples/use-cases.md#命令行准备) 中的环境变量。`--no-grid-assist` 可关闭线框辅助。
 
 独立 Python 字节接口：
 
@@ -84,7 +84,7 @@ print(answer["status"])
 
 提取响应、定位目标快照和每批响应在下一次调用前保存。单项坏位置不抹掉其他有效项；定位失败、遗漏或截断保留原提取，标记 partial。重启复用已完成阶段，不自动重试已失败定位；中断时未落库的在途调用仍可能重复计费。页额度计入队输入页，模型真实词元另累计，不把多次调用当作免费。
 
-没有自动跨页续表合并、人工修改/审核回写或代表性商用精度承诺。当前合成样本与权限、恢复检查见 [验证记录](validation.md)。
+跨页续表与人工结果回写尚未实现。示例见 [使用案例](../examples/use-cases.md)，自动化范围见 [测试文档](validation.md)。
 
 ## English
 

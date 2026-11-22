@@ -62,7 +62,7 @@ curl -H "Authorization: Bearer $WORKBENCH_ACCESS_TOKEN" \
 
 真实连接辅助接口：`POST /api/providers/discover` 接收 name、base_url、api_key（model 可留空），只调用 `/models` 并返回模型 ID 与耗时，不提交图片；`POST /api/providers/{id}/default` 保存默认连接。根地址自动补 `/v1`。`bootstrap` 返回 `default_provider_id`。
 
-设置 `Accept-Language: en` 获得英文操作错误。422 返回字段位置、类型和提示，不回显原始输入或密钥。归档的旧固定输出任务/评测返回 410；不允许按旧模拟后端重跑。新任务和报告不再包含 simulated 标记。
+设置 `Accept-Language: en` 获得英文操作错误。422 返回字段位置、类型和提示，不回显原始输入或密钥。
 
 ## 初始结构与业务字典
 

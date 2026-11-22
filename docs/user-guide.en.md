@@ -64,7 +64,7 @@ Coordinates map to original oriented-image pixels or PDF points; see [coordinate
 
 Use one application per business scenario. Search 100+ scenarios by stable code, name, tags or owner; filter and page the catalog. Copy to create an independent scenario, compare versions and migrate configuration bundles without model secrets or documents. See [application management](applications.md).
 
-The 17 credential starters are schemas/prompts, not separately validated specialist models. They do not establish authenticity or verify identity.
+The 17 credential starters contain editable fields and prompts. Credential authenticity checks and identity verification are outside field extraction.
 
 ## 7. Fixed header KV, line items and dictionaries
 
