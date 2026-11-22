@@ -29,7 +29,7 @@ docker compose ps
 docker compose exec workbench cat /app/data/access-token
 ```
 
-Open **http://127.0.0.1:8765/?lang=en** and enter the generated token. If you set `WORKBENCH_TOKEN` (at least 16 characters), that environment value takes precedence over the token file. Read credentials only in a private terminal.
+Open [http://127.0.0.1:8765/?lang=en](http://127.0.0.1:8765/?lang=en) and enter the generated token. If you set `WORKBENCH_TOKEN` (at least 16 characters), that environment value takes precedence over the token file. Read credentials only in a private terminal.
 
 Community mode is one trusted workspace with a shared administrative token. Data persists in a named volume. Your source tree's `data/` directory is not mounted or imported automatically. Stop a local Python deployment before migrating its complete data directory.
 
@@ -187,4 +187,4 @@ Ship the matching Compose and `.env.example` files; configure a private `.env` o
 
 Published ports bind host loopback. For public access, use a host HTTPS reverse proxy with domain routing, trusted forwarding, request/body limits and backups. See [deployment](deployment.md) and [security](../SECURITY.md). Community shared tokens are intended for trusted workspaces.
 
-Configuration follows Docker's [Compose service reference](https://docs.docker.com/reference/compose-file/services/), [volumes](https://docs.docker.com/engine/storage/volumes/) and [one-off run command](https://docs.docker.com/reference/cli/docker/compose/run/). Docker is not installed on the current validation machine: container execution remains unverified locally. CI includes container checks; see [validation](validation.md).
+Configuration follows Docker's [Compose service reference](https://docs.docker.com/reference/compose-file/services/), [volumes](https://docs.docker.com/engine/storage/volumes/) and [one-off run command](https://docs.docker.com/reference/cli/docker/compose/run/). On 2026-11-22, Linux CI passed actual image builds and non-root community/SaaS authentication, upload, isolation and restart-persistence checks. Compose configuration passed in both modes; a complete Compose deployment, real-data backup/restore, other architectures and production capacity were not covered. Docker remains unavailable on the local validation machine. See [validation](validation.md).

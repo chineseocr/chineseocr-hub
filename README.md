@@ -62,7 +62,7 @@ pip install --require-hashes -r requirements.lock
 python -m workbench
 ```
 
-打开 **http://127.0.0.1:8765**，不要直接双击 `workbench/static/index.html` 作为应用入口。另开终端运行 `cat data/access-token`，把令牌填入登录页。令牌自动生成且不会写入服务日志。也可在启动前设置至少 16 字符的 `WORKBENCH_TOKEN`；设置环境变量时以环境变量为准。令牌拥有整个工作空间的管理权。
+打开 [http://127.0.0.1:8765](http://127.0.0.1:8765)，不要直接双击 `workbench/static/index.html` 作为应用入口。另开终端运行 `cat data/access-token`，把令牌填入登录页。令牌自动生成且不会写入服务日志。也可在启动前设置至少 16 字符的 `WORKBENCH_TOKEN`；设置环境变量时以环境变量为准。令牌拥有整个工作空间的管理权。
 
 如果使用 uv：`uv venv --python 3.12 && uv pip install --require-hashes -r requirements.lock && .venv/bin/python -m workbench`。
 
@@ -141,13 +141,13 @@ docker compose ps
 docker compose exec workbench cat /app/data/access-token
 ```
 
-访问 **http://127.0.0.1:8765/?lang=zh**，使用自动生成的社区令牌登录；若 `.env` 设置了 `WORKBENCH_TOKEN`，直接使用该值。镜像在本地构建为 `chineseocr-hub:0.6.0a1`，尚未提供官方仓库镜像。容器以 UID/GID `10001:10001` 运行，带健康检查、日志轮转及 200 秒停止宽限期；工作台无需 GPU，模型服务独立部署。
+访问 [http://127.0.0.1:8765/?lang=zh](http://127.0.0.1:8765/?lang=zh)，使用自动生成的社区令牌登录；若 `.env` 设置了 `WORKBENCH_TOKEN`，直接使用该值。镜像在本地构建为 `chineseocr-hub:0.6.0a1`，尚未提供官方仓库镜像。容器以 UID/GID `10001:10001` 运行，带健康检查、日志轮转及 200 秒停止宽限期；工作台无需 GPU，模型服务独立部署。
 
 在线版先在 `.env` 设置 `WORKBENCH_MODE=saas`、实际的 `WORKBENCH_ALLOWED_MODEL_BASES`，然后启动。从 `/app/data/saas/initial-admin.json` 私下读取初始账户，登录后改密并删除引导文件。各团队在页面独立配置模型；社区版 `WORKBENCH_MODEL_*` 不下发给团队。
 
 数据保存在带 Compose 项目前缀的命名卷 `workbench-data`；普通 `down` 保留数据，`down -v` 会删除。修改 `.env` 后用 `docker compose up -d --force-recreate`，仅 `restart` 不更新环境。连接宿主机模型可使用 `host.docker.internal`；Linux 还需模型监听容器可达接口。完整的配置、模型网络、停机备份/恢复、升级、离线镜像导出与排障见 **[Docker 操作指南](docs/docker.md)**。
 
-默认只发布本机端口；公网入口需配置 HTTPS、域名、网关限速和备份。同一数据卷只能运行一个实例，不支持多 workers/多容器共享目录扩容。当前机器未安装 Docker，不能将配置已准备理解为容器已实测通过。
+默认只发布本机端口；公网入口需配置 HTTPS、域名、网关限速和备份。同一数据卷只能运行一个实例，不支持多 workers/多容器共享目录扩容。Linux CI 已实际通过镜像构建和社区/SaaS 容器验证；Compose 检查目前覆盖配置解析，完整运维与业务容量仍需自行验收，见 [验证记录](docs/validation.md)。
 
 ## 文档导航与推荐上手顺序
 

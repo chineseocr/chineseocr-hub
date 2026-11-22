@@ -1,8 +1,10 @@
 # v0.6.0a1 验证记录
 
-2026-11-22，macOS arm64 / CPython 3.12.16。以下为首次源码提交前的本地 Alpha 验证记录；后续远程 CI 以 [GitHub Actions](https://github.com/chineseocr/chineseocr-hub/actions) 的实际运行结果为准。尚未发布镜像/PyPI 或部署公网。
+2026-11-22，macOS arm64 / CPython 3.12.16。以下记录本地与首次远程 CI；后续提交以 [GitHub Actions](https://github.com/chineseocr/chineseocr-hub/actions) 的实际运行结果为准。尚未发布镜像/PyPI 或部署公网。
 
-同日 Docker/文档补充：更新非 root Dockerfile 注释、Compose 镜像/端口/基础镜像参数、宿主机映射和日志轮转，新增中英文 Docker 与页面操作手册。Compose/CI YAML 解析、环境变量对应关系及文档 Bash 语法检查通过；备份/恢复 Python 片段以临时合成数据完成双语往返验证，保留文件内容和 0600 密钥权限，向非空目录恢复被拒绝。以上是本地静态/标准库验证，**不等于 Docker 构建、Compose 启动或真实数据恢复演练已通过**；本机仍未安装 Docker，容器检查待在具备 Docker 的环境执行。
+**首次公开 CI 已通过**：[运行 45024664543](https://github.com/chineseocr/chineseocr-hub/actions/runs/45024664543)，源码提交 `23c5800`。Linux/macOS 的全量测试、Ruff、合成示例生成、发布包校验和解压冷启动均通过；运行依赖 pip-audit 通过。Linux 实际构建 Docker 镜像，验证非 root 社区容器的鉴权/上传/重启持久化，以及 SaaS 账户与租户隔离/重启持久化；Compose 在 community/saas 下的配置检查通过。CI 未调用私有模型，没有上传客户资料。容器验证通过不等于完整 Compose 运维、真实数据恢复演练、其他架构或生产容量已验收。该轮出现旧 Action 的 Node 20 弃用提示，后续提交更新为官方 Node 24 Action 并修正 README 本机链接格式。
+
+同日 Docker/文档补充：更新非 root Dockerfile 注释、Compose 镜像/端口/基础镜像参数、宿主机映射和日志轮转，新增中英文 Docker 与页面操作手册。Compose/CI YAML 解析、环境变量对应关系及文档 Bash 语法检查通过；备份/恢复 Python 片段以临时合成数据完成双语往返验证，保留文件内容和 0600 密钥权限，向非空目录恢复被拒绝。这些本地片段检查独立于上述 Linux 容器验证，不构成真实数据恢复演练；本机仍未安装 Docker。
 
 - 全量 **122 项通过（31.26s）**，Ruff 检查/格式检查通过，pip check 无冲突。新增覆盖通用表格 KV/表头/表体/合并跨度、非法索引/重叠/超限、CSV 公式与 HTML 转义、四种仿射旋转、小角度纠偏与真实像素标记、模型行列带交集、线框合并/冲突拒绝、定位失败保留提取、逐项校验、标签值与数组匹配文本兼容、重复 ID/数字子串拒绝、调用预算和阶段恢复、自定义字段/联合 PDF 页归属、公开发布契约固定、租户/应用/Key/导出权限。
 - 没有新增运行依赖、其他 OCR 引擎或模型权重。图像投影/线框辅助只处理几何；文字仍来自所选多模态服务。位置和置信度的边界见 [指南](tables-and-localization.md)。
@@ -12,7 +14,7 @@
 - **Wheel**：39 个运行文件逐字节匹配当前源码，已知私有值扫描通过。在独立安装环境更新 v0.6，pip check 和 tables CLI 帮助检查通过；用安装后的包启动真实 HTTP SaaS，验证鉴权、review.js、表格能力、发布策略、限定应用 Key、双页 PDF 上传、客户端覆盖参数拒绝和导出鉴权。该安装检查没有调用模型。
 - 源码候选包重新构建并执行允许列表、校验和、逐字节源码一致性、已知私有值扫描和解压后的社区/SaaS 冷启动检查。源包为 `dist/chineseocr-hub-0.6.0a1.tar.gz`；该检查不推理、不发送用户资料。
 
-所有本轮新增推理材料仅为本仓库生成的合成表格和双页 PDF。没有发送用户上传的医疗、证件或工作计划文件。Docker、远程 CI、代表性业务精度/容量、安全审计、自动 90° 内容方向检测、透视矫正、跨页续表、人工审核回写、XLSX/可搜索 PDF 仍未验收或实现；具体边界见 [功能说明](ocr-capabilities.md)。
+所有本轮新增推理材料仅为本仓库生成的合成表格和双页 PDF。没有发送用户上传的医疗、证件或工作计划文件。完整 Compose 运维、代表性业务精度/容量和安全审计仍未验收；自动 90° 内容方向检测、透视矫正、跨页续表、人工审核回写、XLSX/可搜索 PDF 仍未实现，具体边界见 [功能说明](ocr-capabilities.md)。
 
 ---
 

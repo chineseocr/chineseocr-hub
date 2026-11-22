@@ -100,13 +100,13 @@ docker compose ps
 docker compose exec workbench cat /app/data/access-token
 ```
 
-Open **http://127.0.0.1:8765/?lang=en** and use the generated token, or your configured `WORKBENCH_TOKEN`. The locally built image is `chineseocr-hub:0.6.0a1`; no official registry image is available yet. It runs as UID/GID `10001:10001`, with a health check, rotated logs and a 200-second stop grace period. No workbench GPU is required; host the model separately.
+Open [http://127.0.0.1:8765/?lang=en](http://127.0.0.1:8765/?lang=en) and use the generated token, or your configured `WORKBENCH_TOKEN`. The locally built image is `chineseocr-hub:0.6.0a1`; no official registry image is available yet. It runs as UID/GID `10001:10001`, with a health check, rotated logs and a 200-second stop grace period. No workbench GPU is required; host the model separately.
 
 For SaaS, set `WORKBENCH_MODE=saas` and actual `WORKBENCH_ALLOWED_MODEL_BASES` in `.env` before starting. Privately read `/app/data/saas/initial-admin.json`, sign in, change the password and delete that file. Teams configure their own model connections; community `WORKBENCH_MODEL_*` profiles are not inherited.
 
 Data lives in a project-prefixed named volume. Normal `down` retains it; `down -v` deletes it. Apply environment edits with `docker compose up -d --force-recreate`, not only `restart`. A host model can use `host.docker.internal`; on Linux it must also listen on a bridge-reachable interface. See the **[Docker operations guide](docs/docker.en.md)** for configuration, networking, backups/restores, upgrades, offline distribution and troubleshooting.
 
-Ports bind host loopback. Managed access needs HTTPS, domain routing, ingress/egress controls and backups. Use one process/container per data directory. Docker is not installed on the current validation machine; container execution and public CI remain unverified.
+Ports bind host loopback. Managed access needs HTTPS, domain routing, ingress/egress controls and backups. Use one process/container per data directory. Linux CI has passed actual image builds and community/SaaS container checks. Compose checks currently validate configuration; the complete operational workflow and business capacity still require acceptance testing. See [validation](docs/validation.md).
 
 ## Documentation and recommended workflow
 
