@@ -1,0 +1,82 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "claim_number",
+    "groups"
+  ],
+  "properties": {
+    "claim_number": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "报销申请编号"
+    },
+    "groups": {
+      "type": "array",
+      "description": "费用分组；每组同时有 KV 和明细表",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "department",
+          "subtotal",
+          "items"
+        ],
+        "properties": {
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "科室/部门"
+          },
+          "subtotal": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "本组小计"
+          },
+          "items": {
+            "type": "array",
+            "description": "商品明细表体",
+            "items": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "品名"
+                },
+                "quantity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "数量"
+                },
+                "amount": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "金额"
+                }
+              },
+              "required": [
+                "description",
+                "quantity",
+                "amount"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

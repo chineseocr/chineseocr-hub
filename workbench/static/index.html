@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title data-i18n="文档提取工作台">
+   文档提取工作台
+  </title>
+  <link href="./style.css" rel="stylesheet"/>
+  <script defer="" src="./startup.js">
+  </script>
+ </head>
+ <body>
+  <section class="startup-help hidden" id="startup-help" role="alert">
+   <div class="login-card">
+    <h1 data-i18n="请通过应用服务打开工作台" id="startup-title">请通过应用服务打开工作台</h1>
+    <p data-i18n="在项目目录启动服务，然后打开本机地址。直接打开网页文件无法运行后端功能。" id="startup-description">在项目目录启动服务，然后打开本机地址。直接打开网页文件无法运行后端功能。</p>
+    <pre class="code-preview">python -m workbench</pre>
+    <a class="primary" href="http://127.0.0.1:8765/" id="startup-link" data-i18n="打开本机工作台">打开本机工作台</a>
+   </div>
+  </section>
+  <noscript><p data-i18n="请启用浏览器脚本并通过应用服务访问工作台。">请启用浏览器脚本并通过应用服务访问工作台。</p></noscript>
+  <select aria-label="界面语言" class="language-select" data-i18n-aria-label="界面语言" id="language-select">
+   <option data-i18n="中文" value="zh">
+    中文
+   </option>
+   <option value="en">
+    English
+   </option>
+  </select>
+  <div class="login-screen hidden" id="login">
+   <form class="login-card" id="login-form">
+    <div class="brand-icon">
+     D
+    </div>
+    <h1 data-i18n="文档提取工作台">
+     文档提取工作台
+    </h1>
+    <p data-i18n="连接你的模型，让文档成为结构化数据。">
+     连接你的模型，让文档成为结构化数据。
+    </p>
+    <label id="login-token-field">
+     <span data-i18n="工作空间访问令牌">
+      工作空间访问令牌
+     </span>
+     <input autocomplete="current-password" data-i18n-placeholder="从 data/access-token 读取" id="token" placeholder="从 data/access-token 读取" required="" type="password"/>
+    </label>
+    <label class="hidden" id="login-account-field"><span data-i18n="账户名称">账户名称</span><input id="login-username" autocomplete="username" disabled="" maxlength="120"/></label>
+    <label class="hidden" id="login-password-field"><span data-i18n="账户密码">账户密码</span><input id="login-password" autocomplete="current-password" disabled="" type="password" maxlength="256"/></label>
+    <button class="primary" data-i18n="进入工作空间 →" type="submit">
+     进入工作空间 →
+    </button>
+    <p class="small" id="community-login-help">
+     <span data-i18n="本地启动后读取">
+      本地启动后读取
+     </span>
+     <code>
+      data/access-token
+     </code>
+     。
+     <br/>
+     <span data-i18n="令牌用于访问工作空间，不是模型服务的接口密钥。">
+      令牌用于访问工作空间，不是模型服务的接口密钥。
+     </span>
+    </p>
+    <p class="small hidden" id="account-login-help" data-i18n="使用账户登录，进入你有权访问的团队工作空间。">使用账户登录，进入你有权访问的团队工作空间。</p>
+    <button type="button" class="text-button hidden" id="show-register" data-i18n="创建账户 / 接受邀请">创建账户 / 接受邀请</button>
+    <p class="error" id="login-error">
+    </p>
+   </form>
+   <section class="login-card hidden" id="no-team">
+    <h1 data-i18n="当前没有可访问的团队">当前没有可访问的团队</h1>
+    <p data-i18n="创建自己的团队，或使用管理员提供的邀请加入团队。">创建自己的团队，或使用管理员提供的邀请加入团队。</p>
+    <form id="first-team-form"><label><span data-i18n="新团队名称">新团队名称</span><input id="first-team-name" required="" maxlength="80"/></label><button class="primary" data-i18n="新建团队" type="submit">新建团队</button></form>
+    <form id="first-invite-form"><label><span data-i18n="邀请令牌">邀请令牌</span><input id="first-invite-token" required=""/></label><button class="secondary" data-i18n="加入受邀团队" type="submit">加入受邀团队</button></form>
+    <button type="button" id="no-team-logout" data-i18n="退出工作空间 ↗">退出工作空间 ↗</button>
+   </section>
+  </div>
+  <div class="hidden" id="shell">
+   <aside class="sidebar">
+    <a class="brand" href="/">
+     <span class="brand-icon">
+      D
+     </span>
+     <span>
+      <b data-i18n="ChineseOCR Hub">ChineseOCR Hub</b>
+      <small data-i18n="文档提取与评测">
+       文档提取与评测
+      </small>
+     </span>
+    </a>
+    <div class="workspace-label">
+     <b data-i18n="工作空间">工作空间</b>
+     <span data-i18n="本地" id="deployment-label">
+      本地
+     </span>
+    </div>
+    <nav>
+     <button data-view="applications"><span>▤</span><span data-i18n="应用管理">应用管理</span></button>
+     <button class="active" data-view="extract">
+      <span>
+       ▣
+      </span>
+      <span data-i18n="提取工作台">
+       提取工作台
+      </span>
+     </button>
+     <button data-view="schema">
+      <span>
+       ▦
+      </span>
+      <span data-i18n="字段与表格">
+       字段与表格
+      </span>
+     </button>
+     <button data-view="prompts">
+      <span>
+       ⌘
+      </span>
+      <span data-i18n="提示词版本">
+       提示词版本
+      </span>
+     </button>
+     <button data-view="dictionaries">
+      <span>≡</span><span data-i18n="字典管理">字典管理</span>
+     </button>
+     <button data-view="datasets">
+      <span>
+       ◈
+      </span>
+      <span data-i18n="数据集与评测">
+       数据集与评测
+      </span>
+     </button>
+     <button data-view="jobs">
+      <span>
+       ◷
+      </span>
+      <span data-i18n="任务记录">
+       任务记录
+      </span>
+     </button>
+     <button data-view="providers">
+      <span>
+       ⚙
+      </span>
+      <span data-i18n="模型接入">
+       模型接入
+      </span>
+     </button>
+     <button class="hidden" data-saas="" data-view="team"><span>♧</span><span data-i18n="团队与用量">团队与用量</span></button>
+     <button class="hidden" data-platform-admin="" data-view="platform"><span>⚒</span><span data-i18n="平台管理">平台管理</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+     <div class="community">
+      <b data-i18n="社区版" id="edition-badge">社区版</b>
+      <span>
+       v0.5.0a1
+      </span>
+     </div>
+     <p data-i18n="自部署 · 数据由你掌控" id="deployment-footer">
+      自部署 · 数据由你掌控
+     </p>
+     <button class="text-button" data-i18n="退出工作空间 ↗" id="logout">
+      退出工作空间 ↗
+     </button>
+    </div>
+   </aside>
+   <main>
+    <header class="topbar">
+     <div class="breadcrumb">
+      <span data-i18n="工作空间">
+       工作空间
+      </span>
+      <span>
+       /
+      </span>
+      <b data-i18n="提取工作台" id="page-title">
+       提取工作台
+      </b>
+     </div>
+     <span class="status-dot" data-i18n="服务已连接">
+      服务已连接
+     </span>
+    </header>
+    <div class="content">
+     <div class="tenant-controls hidden" id="tenant-controls">
+      <label><span data-i18n="当前团队">当前团队</span><select id="tenant-select" aria-label="当前团队" data-i18n-aria-label="当前团队"></select></label>
+      <span class="tag" id="tenant-role"></span>
+      <span class="small grow" id="signed-in-user"></span>
+      <button class="secondary" id="new-tenant" data-i18n="新建团队">新建团队</button>
+     </div>
+     <div class="page-heading">
+      <div>
+       <div class="eyebrow" data-i18n="文档智能提取">
+        文档智能提取
+       </div>
+       <h1 data-i18n="把文档变成可用的数据" id="view-title">
+        把文档变成可用的数据
+       </h1>
+       <p data-i18n="定义提取目标，验证每一次结果。" id="view-description">
+        定义提取目标，验证每一次结果。
+       </p>
+      </div>
+      <button class="secondary" data-i18n="＋ 新建应用" id="new-template">
+       ＋ 新建应用
+      </button>
+     </div>
+     <div class="recognition-toolbar" id="recognition-toolbar">
+      <label><span data-i18n="识别能力">识别能力</span><select id="recognition-task">
+       <option value="ocr" data-i18n="全文 OCR · 多模态识别">全文 OCR · 多模态识别</option>
+       <option value="tables" data-i18n="通用表格识别">通用表格识别</option>
+       <option value="documents" data-i18n="多证件 / 混合文档">多证件 / 混合文档</option>
+       <option value="extract" data-i18n="自定义字段提取">自定义字段提取</option>
+      </select></label>
+      <p class="small" id="recognition-hint"></p>
+     </div>
+     <div class="config-bar" id="application-controls">
+      <label>
+       <span data-i18n="提取应用">
+        提取应用
+       </span>
+       <select id="template-select">
+       </select>
+      </label>
+      <label>
+       <span data-i18n="配置版本">
+        配置版本
+       </span>
+       <select id="version-select">
+       </select>
+      </label>
+      <label class="grow">
+       <span data-i18n="模型服务">
+        模型服务
+       </span>
+       <select id="provider-select">
+       </select>
+      </label>
+      <span class="small" id="dirty-label">
+      </span>
+      <button class="primary" data-i18n="保存新版本" id="save-template">
+       保存新版本
+      </button>
+     </div>
+     <div class="notice hidden" data-i18n="请先在「模型接入」配置真实模型服务，再开始提取。" id="connection-notice">
+      请先在「模型接入」配置真实模型服务，再开始提取。
+     </div>
+     <section class="view hidden" id="view-applications">
+      <div class="panel">
+       <div class="panel-heading"><h2 data-i18n="提取应用目录">提取应用目录</h2><button type="button" class="secondary" id="install-credentials" data-i18n="安装常用证件配置">安装常用证件配置</button></div>
+       <p class="small" data-i18n="每个应用独立管理字段、提示词和版本；发布后可通过固定编码调用。证件配置需用实际模型与授权样本验收。">每个应用独立管理字段、提示词和版本；发布后可通过固定编码调用。证件配置需用实际模型与授权样本验收。</p>
+       <form class="catalog-filters" id="catalog-search-form">
+        <input id="catalog-search" aria-label="搜索应用" data-i18n-aria-label="搜索应用" placeholder="搜索名称、编码、标签或负责人" data-i18n-placeholder="搜索名称、编码、标签或负责人" maxlength="200"/>
+        <select id="catalog-category" aria-label="应用分类" data-i18n-aria-label="应用分类"></select>
+        <select id="catalog-state" aria-label="发布状态" data-i18n-aria-label="发布状态"><option value="" data-i18n="全部状态">全部状态</option><option value="draft" data-i18n="草稿">草稿</option><option value="published" data-i18n="已发布">已发布</option><option value="disabled" data-i18n="已停用">已停用</option></select>
+        <button type="submit" class="secondary" data-i18n="搜索">搜索</button>
+       </form>
+       <div class="catalog-tools"><button id="export-applications" type="button" class="text-button" data-i18n="导出当前页配置">导出当前页配置</button><label class="text-button"><span data-i18n="导入配置包">导入配置包</span><input id="import-applications" type="file" accept="application/json,.json"/></label></div>
+       <div id="catalog-list"></div>
+       <div class="catalog-pagination"><button id="catalog-prev" type="button" class="text-button" data-i18n="上一页">上一页</button><span id="catalog-count" class="small"></span><button id="catalog-next" type="button" class="text-button" data-i18n="下一页">下一页</button></div>
+      </div>
+      <section class="panel hidden" id="application-detail">
+       <div class="panel-heading"><h2 id="catalog-detail-name"></h2><span id="catalog-detail-state" class="tag"></span></div>
+       <p id="catalog-detail-summary" class="small"></p>
+       <div class="button-group" id="application-actions"></div>
+       <form id="application-metadata-form" class="catalog-metadata">
+        <label><span data-i18n="固定应用编码">固定应用编码</span><input id="catalog-code" readonly=""/></label>
+        <label><span data-i18n="应用分类">应用分类</span><input id="catalog-edit-category" required="" maxlength="60"/></label>
+        <label><span data-i18n="标签 · 逗号分隔">标签 · 逗号分隔</span><input id="catalog-tags" maxlength="820"/></label>
+        <label><span data-i18n="负责人">负责人</span><input id="catalog-owner" maxlength="100"/></label>
+        <label class="catalog-wide"><span data-i18n="应用说明">应用说明</span><textarea id="catalog-description" maxlength="1000" rows="2"></textarea></label>
+        <button class="secondary" type="submit" data-i18n="保存目录信息">保存目录信息</button>
+       </form>
+       <div class="catalog-section"><h3 data-i18n="版本对比与发布">版本对比与发布</h3>
+        <div class="catalog-filters"><label><span data-i18n="对比起始版本">对比起始版本</span><select id="catalog-diff-before"></select></label><label><span data-i18n="目标版本">目标版本</span><select id="catalog-diff-after"></select></label><button class="secondary" id="catalog-diff" type="button" data-i18n="对比字段与提示词">对比字段与提示词</button></div>
+        <pre id="catalog-diff-output" class="code-preview hidden"></pre>
+        <form id="application-publish-form">
+         <div class="catalog-filters"><label><span data-i18n="发布配置版本">发布配置版本</span><select id="catalog-publish-version"></select></label><label><span data-i18n="模型服务">模型服务</span><select id="catalog-publish-provider"></select></label><label><span data-i18n="提取方式">提取方式</span><select id="catalog-publish-mode"><option value="document" data-i18n="整份文档 · 联合理解">整份文档 · 联合理解</option><option value="page" data-i18n="逐页提取">逐页提取</option></select></label></div>
+         <div class="catalog-filters">
+          <label><span data-i18n="发布识别能力">发布识别能力</span><select id="catalog-publish-task"><option value="extract" data-i18n="自定义字段提取">自定义字段提取</option><option value="tables" data-i18n="通用表格识别">通用表格识别</option><option value="ocr" data-i18n="全文 OCR · 多模态识别">全文 OCR · 多模态识别</option></select></label>
+          <label><span data-i18n="位置处理">位置处理</span><select id="catalog-publish-position"><option value="direct" data-i18n="直接定位 · 单次识别">直接定位 · 单次识别</option><option value="contextual" data-i18n="精细定位 · 上下文与行列锚点">精细定位 · 上下文与行列锚点</option></select></label>
+          <label><span data-i18n="倾斜处理">倾斜处理</span><select id="catalog-publish-deskew"><option value="off" data-i18n="保持图像">保持图像</option><option value="on" data-i18n="自动纠偏 · 小角度">自动纠偏 · 小角度</option></select></label>
+         </div>
+         <label><span data-i18n="表格几何">表格几何</span><select id="catalog-publish-grid"><option value="on" data-i18n="自动线框校验">自动线框校验</option><option value="off" data-i18n="仅模型结构">仅模型结构</option></select></label>
+         <p class="small" data-i18n="通用能力固定内置识别契约；自定义字段使用应用提示词。处理设置随发布版本固定。">通用能力固定内置识别契约；自定义字段使用应用提示词。处理设置随发布版本固定。</p>
+         <label><span data-i18n="发布说明">发布说明</span><input id="catalog-publish-notes" maxlength="1000"/></label>
+         <p class="small" data-i18n="发布固定字段、提示词和模型连接；编辑新草稿不影响已发布版本。发布不会替代效果验收。">发布固定字段、提示词和模型连接；编辑新草稿不影响已发布版本。发布不会替代效果验收。</p>
+         <button class="primary" type="submit" data-i18n="发布所选版本">发布所选版本</button>
+        </form>
+        <div id="catalog-release-list"></div>
+       </div>
+       <div class="catalog-section"><h3 data-i18n="对外接口">对外接口</h3><pre id="catalog-api-example" class="code-preview"></pre><p class="small" data-i18n="先通过 POST /v1/files 上传文件，再提交识别；返回任务 ID 后轮询 GET /v1/jobs/{id}。">先通过 POST /v1/files 上传文件，再提交识别；返回任务 ID 后轮询 GET /v1/jobs/{id}。</p><button id="catalog-api-key" type="button" class="secondary hidden" data-i18n="创建仅限此应用的接口密钥">创建仅限此应用的接口密钥</button></div>
+      </section>
+     </section>
+     <section class="view" id="view-extract">
+      <div class="extract-grid">
+       <div class="panel source-panel">
+        <div class="panel-heading">
+         <h2 data-i18n="输入文档">
+          输入文档
+         </h2>
+         <span class="tag" data-i18n="图片 / PDF">
+          图片 / PDF
+         </span>
+        </div>
+        <label class="drop-zone" id="drop-zone">
+         <input accept=".png,.jpg,.jpeg,.webp,.tif,.tiff,.pdf" id="file-input" multiple="" type="file"/>
+         <span class="upload-icon">
+          ↥
+         </span>
+         <strong data-i18n="拖入文档，或点击上传">
+          拖入文档，或点击上传
+         </strong>
+         <span data-i18n="单文件 20 MB · PDF 最多 20 页">
+          单文件 20 MB · PDF 最多 20 页
+         </span>
+        </label>
+        <div class="file-list" id="file-list">
+        </div>
+        <div class="preview-toolbar">
+         <span data-i18n="文档预览" id="preview-name">
+          文档预览
+         </span>
+         <select aria-label="预览页码" data-i18n-aria-label="预览页码" id="preview-page">
+         </select>
+        </div>
+        <div class="image-stage">
+         <div class="source-canvas" id="source-canvas"><img alt="文档来源页预览" data-i18n-alt="文档来源页预览" id="source-preview"/>
+          <svg id="source-overlay" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg></div>
+         <div class="muted" data-i18n="选择一个文档查看预览" id="preview-empty">
+          选择一个文档查看预览
+         </div>
+        </div>
+       </div>
+       <div class="right-column">
+        <div class="panel run-panel">
+         <div class="panel-heading">
+          <h2 data-i18n="运行配置">
+           运行配置
+          </h2>
+          <span class="tag" data-i18n="可追溯">
+           可追溯
+          </span>
+         </div>
+         <div id="recognition-options" class="two-column">
+          <label><span data-i18n="输出格式">输出格式</span><select id="ocr-output-format"><option value="text" data-i18n="纯文本">纯文本</option><option value="markdown" data-i18n="Markdown 文档">Markdown 文档</option></select></label>
+          <label><span data-i18n="输入旋转 · 顺时针">输入旋转 · 顺时针</span><select id="ocr-rotation"><option value="0" data-i18n="保持原方向">保持原方向</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label>
+          <label><span data-i18n="位置处理">位置处理</span><select id="ocr-position-mode"><option value="direct" data-i18n="直接定位 · 单次识别">直接定位 · 单次识别</option><option value="contextual" data-i18n="精细定位 · 上下文与行列锚点">精细定位 · 上下文与行列锚点</option></select></label>
+          <label><span data-i18n="倾斜处理">倾斜处理</span><select id="ocr-deskew"><option value="off" data-i18n="保持图像">保持图像</option><option value="on" data-i18n="自动纠偏 · 小角度">自动纠偏 · 小角度</option></select></label>
+          <label id="table-grid-options"><span data-i18n="表格几何">表格几何</span><select id="table-grid-assist"><option value="on" data-i18n="自动线框校验">自动线框校验</option><option value="off" data-i18n="仅模型结构">仅模型结构</option></select></label>
+          <p class="small" data-i18n="精细定位每页或实例最多追加 4 次模型调用；缺失与无法确认的位置保留为空。">精细定位每页或实例最多追加 4 次模型调用；缺失与无法确认的位置保留为空。</p>
+         </div>
+         <details class="hidden" id="document-routing"><summary data-i18n="按文档类别选择字段结构（可选）">按文档类别选择字段结构（可选）</summary><p class="small" data-i18n="默认逐实例全文识别。选择字段结构后，该类别的裁剪图按固定应用版本提取；未知类别保留全文。">默认逐实例全文识别。选择字段结构后，该类别的裁剪图按固定应用版本提取；未知类别保留全文。</p><div id="document-routes"></div></details>
+         <div class="two-column">
+          <label>
+           <span data-i18n="提取方式">
+            提取方式
+           </span>
+           <select id="extraction-mode">
+            <option data-i18n="整份文档 · 联合理解" value="document">
+             整份文档 · 联合理解
+            </option>
+            <option data-i18n="逐页提取 · 分别输出" value="page">
+             逐页提取 · 分别输出
+            </option>
+           </select>
+          </label>
+          <label>
+           <span data-i18n="页码范围">
+            页码范围
+           </span>
+           <input data-i18n-placeholder="全部页，或 1-3,5" id="page-range" placeholder="全部页，或 1-3,5"/>
+          </label>
+         </div>
+         <p class="small" data-i18n="整份模式最多联合 8 页。每个文件独立处理；逐页模式不自动合并续表。页码对所有已选文件生效。">
+          整份模式最多联合 8 页。每个文件独立处理；逐页模式不自动合并续表。页码对所有已选文件生效。
+         </p>
+         <p class="small" data-i18n="按照所选应用的字段提取，不自动判断票据或证件类型。识别证件时，请先建立对应的字段与提示词。">
+          按照所选应用的字段提取，不自动判断票据或证件类型。识别证件时，请先建立对应的字段与提示词。
+         </p>
+         <div class="button-group">
+          <button class="text-button" data-config-view="schema" data-i18n="配置字段与字典">配置字段与字典</button>
+          <button class="text-button" data-config-view="prompts" data-i18n="配置提示词">配置提示词</button>
+         </div>
+         <button class="primary full" data-i18n="▷ 开始提取" id="run-extraction">
+          ▷ 开始提取
+         </button>
+        </div>
+        <div class="panel result-panel">
+         <div class="panel-heading">
+          <h2>
+           <span data-i18n="提取结果">
+            提取结果
+           </span>
+           <span class="tag" data-i18n="等待运行" id="result-state">
+            等待运行
+           </span>
+          </h2>
+          <button class="text-button hidden" id="export-recognition-text" data-i18n="下载文本">下载文本</button>
+          <button class="text-button" disabled="" id="export-result">
+           ↓ JSON
+          </button>
+         </div>
+         <div class="result-empty" id="result-content">
+          <span class="empty-symbol">
+           ⌑
+          </span>
+          <strong data-i18n="结果会在这里呈现">
+           结果会在这里呈现
+          </strong>
+          <p data-i18n="结构化字段、表格和原始输出，同步保留来源页。">
+           结构化字段·表格和原始输出，同步保留来源页。
+          </p>
+         </div>
+        </div>
+       </div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-schema">
+      <div class="panel">
+       <div class="panel-heading">
+        <div>
+         <h2 data-i18n="提取结构">
+          提取结构
+         </h2>
+         <p class="small" data-i18n="文档级字段、分组与表格共同定义输出。表头是列字段，表体是数组中的记录。">
+          文档级字段·分组与表格共同定义输出。表头是列字段，表体是数组中的记录。
+         </p>
+        </div>
+        <div class="button-group">
+         <button class="secondary" data-i18n="导入提取结构" id="import-schema">
+          导入提取结构
+         </button>
+         <button class="secondary" data-i18n="导出" id="export-schema">
+          导出
+         </button>
+         <button class="primary" data-i18n="＋ 添加字段" id="add-field">
+          ＋ 添加字段
+         </button>
+        </div>
+       </div>
+       <label class="app-name">
+        <span data-i18n="应用名称">
+         应用名称
+        </span>
+        <input id="template-name" maxlength="100"/>
+       </label>
+       <p class="small" data-i18n="字段说明告诉模型提取什么；类型约束输出格式。点击字段右侧的可选值按钮，可手动编辑或从字典管理中复制固定版本。">
+        字段说明告诉模型提取什么；类型约束输出格式。点击字段右侧的可选值按钮，可手动编辑或从字典管理中复制固定版本。
+       </p>
+       <div class="field-column-labels">
+        <span data-i18n="字段标识 / 结构层级">
+         字段标识 / 结构层级
+        </span>
+        <span data-i18n="类型">
+         类型
+        </span>
+        <span data-i18n="提取说明 / 页面表头名称">
+         提取说明 / 页面表头名称
+        </span>
+        <span data-i18n="必填">
+         必填
+        </span>
+        <span data-i18n="操作">
+         操作
+        </span>
+       </div>
+       <div id="field-editor">
+       </div>
+       <div class="hint">
+        <span data-i18n="混合文档：普通字段与">
+         混合文档：普通字段与
+        </span>
+        <code>
+         items[]
+        </code>
+        <span data-i18n="明细并列；按科室分组时，可在数组内继续放分组字段和明细数组。复杂结构也可通过导入提取结构配置。">
+         明细并列；按科室分组时，可在数组内继续放分组字段和明细数组。复杂结构也可通过导入提取结构配置。
+        </span>
+       </div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-prompts">
+      <div class="prompt-grid">
+       <div class="panel">
+        <div class="panel-heading">
+         <h2 data-i18n="提示词配置">
+          提示词配置
+         </h2>
+         <span class="tag" id="prompt-version">
+         </span>
+        </div>
+        <p class="small" data-i18n="保存生成不可变版本；运行与评测固定使用提交时的配置。">
+         保存生成不可变版本；运行与评测固定使用提交时的配置。
+        </p>
+        <label>
+         <span data-i18n="系统提示词">系统提示词</span>
+         <textarea id="system-prompt" rows="6" spellcheck="false"></textarea>
+        </label>
+        <label>
+         <span data-i18n="用户提示词">用户提示词</span>
+         <textarea id="user-prompt" rows="11" spellcheck="false"></textarea>
+        </label>
+        <div class="hint">
+         <span data-i18n="变量：">
+          变量：
+         </span>
+         <code>
+          {{schema}}
+         </code>
+         ·
+         <code>
+          {{filename}}
+         </code>
+         ·
+         <code>
+          {{pages}}
+         </code>
+         <span data-i18n="。不执行代码或模板表达式。">
+          。不执行代码或模板表达式。
+         </span>
+        </div>
+        <p class="small" data-i18n="运行时，字段结构替换 {{schema}}，与提示词和图片一起发送给模型服务。页面语言切换不会翻译或改写已保存的提示词与字段。">
+         运行时，字段结构替换 {{schema}}，与提示词和图片一起发送给模型服务。页面语言切换不会翻译或改写已保存的提示词与字段。
+        </p>
+        <button class="secondary" data-i18n="查看渲染后的请求" id="preview-prompt">
+         查看渲染后的请求
+        </button>
+       </div>
+       <div class="panel">
+        <div class="panel-heading">
+         <h2 data-i18n="最终提示词预览">
+          最终提示词预览
+         </h2>
+         <span class="tag" data-i18n="示例上下文">
+          示例上下文
+         </span>
+        </div>
+        <pre class="code-preview" data-i18n="点击左侧按钮生成预览。
+
+预览使用 sample.pdf 和第 1、2 页。
+实际任务会替换为上传文件名称及输入页码。" id="prompt-preview">点击左侧按钮生成预览。
+
+预览使用 sample.pdf 和第 1·2 页。
+实际任务会替换为上传文件名称及输入页码。</pre>
+       </div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-dictionaries">
+      <div class="prompt-grid">
+       <div class="panel">
+        <div class="panel-heading"><h2 data-i18n="字典管理">字典管理</h2><button class="secondary" id="new-dictionary" data-i18n="新建字典">新建字典</button></div>
+        <p class="small" data-i18n="维护可复用的固定可选值。字段复制字典后形成独立快照；字典更新不会修改已有应用、任务和评测。">维护可复用的固定可选值。字段复制字典后形成独立快照；字典更新不会修改已有应用、任务和评测。</p>
+        <div id="dictionary-list"></div>
+       </div>
+       <div class="panel">
+        <form id="dictionary-form">
+         <h2 id="dictionary-editor-title" data-i18n="新建字典">新建字典</h2>
+         <label><span data-i18n="字典名称">字典名称</span><input id="dictionary-name" maxlength="100" required=""/></label>
+         <label><span data-i18n="字典说明">字典说明</span><textarea id="dictionary-description" maxlength="1000" rows="3"></textarea></label>
+         <label><span data-i18n="可选值 · JSON 数组">可选值 · JSON 数组</span><textarea id="dictionary-values" rows="8" spellcheck="false" required="" placeholder='["A", "B", null]'></textarea></label>
+         <p class="small" data-i18n="最多 200 个不重复的文本、数字、布尔值或空值；不做同义词替换和自动归一化。">最多 200 个不重复的文本、数字、布尔值或空值；不做同义词替换和自动归一化。</p>
+         <button class="primary" type="submit" data-i18n="保存字典新版本">保存字典新版本</button>
+        </form>
+       </div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-datasets">
+      <div class="panel">
+       <div class="panel-heading">
+        <div>
+         <h2 data-i18n="数据集与版本验证">
+          数据集与版本验证
+         </h2>
+         <p class="small" data-i18n="为样本保存标准答案，再用固定的模板版本运行。失败和缺失字段计入总分母。">
+          为样本保存标准答案，再用固定的模板版本运行。失败和缺失字段计入总分母。
+         </p>
+        </div>
+        <button class="secondary" data-i18n="＋ 新建数据集" id="new-dataset">
+         ＋ 新建数据集
+        </button>
+       </div>
+       <div class="dataset-controls">
+        <label class="grow">
+         <span data-i18n="数据集">
+          数据集
+         </span>
+         <select id="dataset-select">
+         </select>
+        </label>
+        <span class="tag" id="dataset-count">
+        </span>
+        <button class="primary" data-i18n="▷ 运行评测" id="run-evaluation">
+         ▷ 运行评测
+        </button>
+       </div>
+       <details class="sample-details">
+        <summary data-i18n="添加带标准答案的样本">
+         添加带标准答案的样本
+        </summary>
+        <div class="two-column">
+         <label>
+          <span data-i18n="已上传文件">
+           已上传文件
+          </span>
+          <select id="sample-file">
+          </select>
+         </label>
+         <label>
+          <span data-i18n="导入标准答案 JSON">
+           导入标准答案 JSON
+          </span>
+          <input accept=".json,application/json" id="gold-file" type="file"/>
+         </label>
+        </div>
+        <label>
+         <span data-i18n="标准答案 · 单个文档的 JSON 对象">
+          标准答案 · 单个文档的 JSON 对象
+         </span>
+         <textarea id="gold-json" placeholder='{"invoice_number": "INV-2026-001"}' rows="8" spellcheck="false"></textarea>
+        </label>
+        <button class="secondary" data-i18n="添加到数据集" id="add-sample">
+         添加到数据集
+        </button>
+       </details>
+       <div id="sample-list">
+       </div>
+      </div>
+      <div class="panel spacing-top">
+       <div class="panel-heading">
+        <h2 data-i18n="评测记录">
+         评测记录
+        </h2>
+        <button class="secondary" data-i18n="对比已选记录（2 项）" id="compare-runs">
+         对比已选记录（2 项）
+        </button>
+       </div>
+       <div id="run-history">
+       </div>
+       <div id="evaluation-report">
+       </div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-jobs">
+      <div class="panel">
+       <div class="panel-heading">
+        <h2 data-i18n="持久化任务">
+         持久化任务
+        </h2>
+        <button class="secondary" data-i18n="刷新" id="refresh-jobs">
+         刷新
+        </button>
+       </div>
+       <p class="small" data-i18n="任务、输入与模板版本保存在本地。中断后恢复排队；已完成单元不重复执行。中断时仍在调用的单元可能再次请求模型。">
+        任务·输入与模板版本保存在本地。中断后恢复排队；已完成单元不重复执行。中断时仍在调用的单元可能再次请求模型。
+       </p>
+       <div id="job-list">
+       </div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-team">
+      <div class="panel"><h2 data-i18n="团队用量与额度">团队用量与额度</h2><div id="tenant-usage" class="result-values"></div>
+       <p class="small" data-i18n="页额度按 UTC 自然月的提交页数计算，失败、取消和手动重跑也计入；模型费用以服务提供方账单为准。">页额度按 UTC 自然月的提交页数计算，失败、取消和手动重跑也计入；模型费用以服务提供方账单为准。</p></div>
+      <div class="prompt-grid spacing-top">
+       <div class="panel"><h2 data-i18n="团队成员">团队成员</h2><div id="tenant-members"></div>
+        <form id="invite-form" class="spacing-top"><label><span data-i18n="邀请角色">邀请角色</span><select id="invite-role"></select></label><button class="secondary" type="submit" data-i18n="生成邀请链接">生成邀请链接</button></form>
+        <div id="tenant-invitations"></div>
+        <form id="accept-invite-form" class="spacing-top"><label><span data-i18n="邀请令牌">邀请令牌</span><input id="accept-invite-token" maxlength="200" required="" autocomplete="off"/></label><button class="secondary" type="submit" data-i18n="加入受邀团队">加入受邀团队</button></form>
+       </div>
+       <div class="panel"><h2 data-i18n="我的接口密钥">我的接口密钥</h2><div id="tenant-api-keys"></div>
+        <form id="api-key-form"><label><span data-i18n="密钥名称">密钥名称</span><input id="api-key-name" maxlength="100" required=""/></label>
+         <div class="two-column"><label><span data-i18n="密钥权限">密钥权限</span><select id="api-key-role"></select></label><label><span data-i18n="有效天数">有效天数</span><input id="api-key-days" type="number" min="1" max="90" value="30"/></label></div>
+         <button class="secondary" type="submit" data-i18n="生成接口密钥">生成接口密钥</button></form>
+        <p class="small" data-i18n="接口密钥固定属于当前团队，不能管理成员或修改模型连接；明文只显示一次。">接口密钥固定属于当前团队，不能管理成员或修改模型连接；明文只显示一次。</p>
+       </div>
+      </div>
+      <div class="prompt-grid spacing-top">
+       <div class="panel"><h2 data-i18n="修改账户密码">修改账户密码</h2><form id="password-change-form">
+        <label><span data-i18n="当前密码">当前密码</span><input id="current-password" type="password" autocomplete="current-password" required="" maxlength="256"/></label>
+        <label><span data-i18n="新密码 · 至少 12 个字符">新密码 · 至少 12 个字符</span><input id="new-password" type="password" autocomplete="new-password" required="" minlength="12" maxlength="256"/></label>
+        <button class="secondary" type="submit" data-i18n="修改密码并退出全部会话">修改密码并退出全部会话</button></form></div>
+       <div class="panel"><h2 data-i18n="团队审计记录">团队审计记录</h2><div id="tenant-audit"></div></div>
+      </div>
+     </section>
+     <section class="view hidden" id="view-platform">
+      <div class="panel"><h2 data-i18n="团队套餐与限额">团队套餐与限额</h2><p class="small" data-i18n="这里只管理服务额度，不包含支付收款或自动订阅扣费。">这里只管理服务额度，不包含支付收款或自动订阅扣费。</p>
+       <form id="limits-form"><label><span data-i18n="选择团队">选择团队</span><select id="admin-tenant"></select></label>
+        <div class="two-column"><label><span data-i18n="套餐标识">套餐标识</span><select id="admin-plan"><option value="starter" data-i18n="基础套餐">基础套餐</option><option value="pro" data-i18n="专业套餐">专业套餐</option><option value="custom" data-i18n="自定义">自定义</option></select></label><label><span data-i18n="每月提交页额度">每月提交页额度</span><input id="admin-pages" type="number" min="1" max="10000000" required=""/></label>
+         <label><span data-i18n="存储额度 / 字节">存储额度 / 字节</span><input id="admin-storage" type="number" min="1024" max="1099511627776" required=""/></label><label><span data-i18n="成员额度">成员额度</span><input id="admin-members" type="number" min="1" max="1000" required=""/></label></div>
+        <button class="primary" type="submit" data-i18n="保存团队额度">保存团队额度</button></form></div>
+      <div class="panel spacing-top"><h2 data-i18n="账户状态管理">账户状态管理</h2><div id="platform-users"></div></div>
+     </section>
+     <section class="view hidden" id="view-providers">
+      <div class="prompt-grid">
+       <div class="panel">
+        <div class="panel-heading">
+         <h2 data-i18n="连接图像模型">
+          连接图像模型
+         </h2>
+         <span class="tag" data-i18n="兼容 OpenAI 协议">
+          兼容 OpenAI 协议
+         </span>
+        </div>
+        <p class="small" data-i18n="需要支持图像输入的 Chat Completions 接口。可连接本地 vLLM 或你选择的云端服务。保存后，运行时才发送文件。">
+         需要支持图像输入的 Chat Completions 接口。可连接本地 vLLM 或你选择的云端服务。保存后，运行时才发送文件。
+        </p>
+        <form id="provider-form">
+         <label>
+          <span data-i18n="连接名称">
+           连接名称
+          </span>
+          <input data-i18n-placeholder="例如：本地 Qwen-VL" id="model-name" placeholder="例如：本地 Qwen-VL" required=""/>
+         </label>
+         <label>
+          <span data-i18n="服务地址">服务地址</span>
+          <input id="model-url" required="" type="url" value="http://localhost:8001/v1"/>
+         </label>
+         <button class="secondary" data-i18n="检测连接并获取模型" id="discover-models" type="button">
+          检测连接并获取模型
+         </button>
+         <p class="small" id="connection-status" role="status">
+         </p>
+         <label>
+          <span data-i18n="模型标识">
+           模型标识
+          </span>
+          <input data-i18n-placeholder="服务实际提供的模型标识" id="model-id" list="available-models" placeholder="服务实际提供的模型标识" required=""/>
+          <datalist id="available-models">
+          </datalist>
+         </label>
+         <label>
+          <span data-i18n="接口密钥">接口密钥</span>
+          <input autocomplete="off" data-i18n-placeholder="本地免密服务可留空" id="model-key" placeholder="本地免密服务可留空" type="password"/>
+         </label>
+         <div class="two-column">
+          <label>
+           <span data-i18n="最大输出词元数">
+            最大输出词元数
+           </span>
+           <input id="model-tokens" max="16384" min="128" type="number" value="4096"/>
+          </label>
+          <label>
+           <span data-i18n="超时 / 秒">
+            超时 / 秒
+           </span>
+           <input id="model-timeout" max="180" min="5" type="number" value="90"/>
+          </label>
+         </div>
+         <p class="small" id="provider-security-note" data-i18n="密钥保存在受文件权限保护的本地数据库，不回显到页面。首版不自动重试模型请求。">
+          密钥保存在受文件权限保护的本地数据库，不回显到页面。首版不自动重试模型请求。
+         </p>
+         <button class="primary" data-i18n="保存并选择此连接" type="submit">
+          保存并选择此连接
+         </button>
+        </form>
+       </div>
+       <div class="panel">
+        <div class="panel-heading">
+         <h2 data-i18n="已有连接">
+          已有连接
+         </h2>
+        </div>
+        <div id="provider-list">
+        </div>
+        <div class="hint">
+         <span data-i18n="当前适配器发送 PNG 图像与提示词，使用普通 JSON 文本输出，不要求服务支持结构化输出参数。">
+          当前适配器发送 PNG 图像与提示词，使用普通 JSON 文本输出，不要求服务支持结构化输出参数。
+         </span>
+         <br/>
+         <br/>
+         <span data-i18n="模型权重、证件检测模型和 API 费用由使用方配置；项目不包含这些资产。">
+          模型权重·证件检测模型和 API 费用由使用方配置；项目不包含这些资产。
+         </span>
+        </div>
+       </div>
+      </div>
+     </section>
+    </div>
+    <footer>
+     <b data-i18n="文档提取工作台">文档提取工作台</b>
+     <span data-i18n="社区版 · 本地单工作空间" id="edition-label">
+      社区版 · 本地单工作空间
+     </span>
+    </footer>
+   </main>
+  </div>
+  <div class="toast hidden" id="toast" role="status">
+  </div>
+  <dialog id="json-dialog">
+   <form method="dialog">
+    <div class="panel-heading">
+     <h2 data-i18n="导入提取结构">
+      导入提取结构
+     </h2>
+     <button class="text-button" value="cancel">
+      ✕
+     </button>
+    </div>
+    <p class="small" data-i18n="使用 JSON Schema 格式，支持对象、数组、基础类型、必填、枚举和字段说明；不支持外部引用。">
+     使用 JSON Schema 格式，支持对象、数组、基础类型、必填、枚举和字段说明；不支持外部引用。
+    </p>
+    <textarea id="schema-json" rows="18" spellcheck="false"></textarea>
+    <div class="dialog-actions">
+     <button class="secondary" data-i18n="取消" value="cancel">
+      取消
+     </button>
+     <button class="primary" data-i18n="应用到当前草稿" id="apply-schema" type="button">
+      应用到当前草稿
+     </button>
+    </div>
+   </form>
+  </dialog>
+  <dialog id="new-application-dialog">
+   <form id="new-application-form">
+    <div class="panel-heading"><h2 data-i18n="新建提取应用">新建提取应用</h2><button type="button" class="text-button" data-close-dialog="new-application-dialog">✕</button></div>
+    <label><span data-i18n="初始结构">初始结构</span><select id="application-preset"></select></label>
+    <p class="small" id="application-preset-hint"></p>
+    <label><span data-i18n="应用名称">应用名称</span><input id="application-name" maxlength="100" required=""/></label>
+    <label><span data-i18n="固定应用编码">固定应用编码</span><input id="application-code" pattern="[a-z][a-z0-9-]{1,63}" maxlength="64" required=""/></label>
+    <label><span data-i18n="应用分类">应用分类</span><input id="application-category" maxlength="60" required="" value="general"/></label>
+    <p class="small" data-i18n="初始结构用于配置字段，不会自动检测、裁剪或分类证件。保存后可继续修改字段和提示词。">初始结构用于配置字段，不会自动检测、裁剪或分类证件。保存后可继续修改字段和提示词。</p>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close-dialog="new-application-dialog" data-i18n="取消">取消</button><button type="submit" class="primary" data-i18n="创建应用">创建应用</button></div>
+   </form>
+  </dialog>
+  <dialog id="register-dialog"><form id="register-form">
+   <div class="panel-heading"><h2 data-i18n="创建账户">创建账户</h2><button type="button" class="text-button" data-close-dialog="register-dialog">✕</button></div>
+   <label><span data-i18n="账户名称">账户名称</span><input id="register-username" autocomplete="username" minlength="3" maxlength="120" required=""/></label>
+   <label><span data-i18n="账户密码 · 至少 12 个字符">账户密码 · 至少 12 个字符</span><input id="register-password" autocomplete="new-password" type="password" minlength="12" maxlength="256" required=""/></label>
+   <label><span data-i18n="邀请令牌 · 开放注册时可留空">邀请令牌 · 开放注册时可留空</span><input id="register-invitation" autocomplete="off" maxlength="200"/></label>
+   <button class="primary" type="submit" data-i18n="创建账户">创建账户</button></form></dialog>
+  <dialog id="copy-application-dialog"><form id="copy-application-form">
+    <div class="panel-heading"><h2 data-i18n="复制应用">复制应用</h2><button type="button" class="text-button" data-close-dialog="copy-application-dialog">✕</button></div>
+    <label><span data-i18n="应用名称">应用名称</span><input id="copy-application-name" required="" maxlength="100"/></label>
+    <label><span data-i18n="固定应用编码">固定应用编码</span><input id="copy-application-code" required="" pattern="[a-z][a-z0-9-]{1,63}" maxlength="64"/></label>
+    <button class="primary" type="submit" data-i18n="创建副本">创建副本</button></form></dialog>
+  <dialog id="secret-dialog"><form method="dialog"><h2 data-i18n="请妥善保存">请妥善保存</h2><p data-i18n="以下内容仅显示一次，不会出现在后续列表中。">以下内容仅显示一次，不会出现在后续列表中。</p>
+   <textarea id="one-time-secret" rows="4" readonly="" spellcheck="false"></textarea><div class="dialog-actions"><button class="primary" value="close" data-i18n="已保存，关闭">已保存，关闭</button></div></form></dialog>
+  <dialog id="enum-dialog">
+   <form id="enum-form">
+    <div class="panel-heading"><h2 id="enum-title" data-i18n="字段可选值">字段可选值</h2><button type="button" class="text-button" data-close-dialog="enum-dialog">✕</button></div>
+    <div class="two-column">
+     <label><span data-i18n="来源字典">来源字典</span><select id="enum-library"></select></label>
+     <label><span data-i18n="字典版本">字典版本</span><select id="enum-version"></select></label>
+    </div>
+    <button type="button" class="secondary" id="copy-dictionary" data-i18n="复制所选版本">复制所选版本</button>
+    <label><span data-i18n="可选值 · JSON 数组">可选值 · JSON 数组</span><textarea id="enum-values" rows="8" spellcheck="false"></textarea></label>
+    <p class="small" data-i18n="留空表示不限制。可选值需符合字段类型；需要允许缺失时，请包含 null。仅修改当前草稿，保存应用版本后生效。">留空表示不限制。可选值需符合字段类型；需要允许缺失时，请包含 null。仅修改当前草稿，保存应用版本后生效。</p>
+    <div class="dialog-actions"><button type="button" class="secondary" data-close-dialog="enum-dialog" data-i18n="取消">取消</button><button type="submit" class="primary" data-i18n="应用可选值">应用可选值</button></div>
+   </form>
+  </dialog>
+ </body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "document_number": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "文档编号"
+    },
+    "issuer": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "签发单位"
+    }
+  },
+  "required": [
+    "document_number",
+    "issuer"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": ["string", "null"],
+      "description": "证件上的姓名，按原文保留"
+    },
+    "gender": {
+      "type": ["string", "null"],
+      "description": "证件上的性别；没有显示或看不清时返回 null",
+      "enum": ["男", "女", null]
+    },
+    "birth_date": {
+      "type": ["string", "null"],
+      "description": "证件上的出生日期，按原文保留；不可从证件号码推断"
+    },
+    "address": {
+      "type": ["string", "null"],
+      "description": "证件上印刷的住址，保留完整内容"
+    },
+    "id_number": {
+      "type": ["string", "null"],
+      "description": "证件上印刷的公民身份号码，使用文本保留前导零和末尾字母；不可推断缺失字符"
+    }
+  },
+  "required": ["name", "gender", "birth_date", "address", "id_number"],
+  "additionalProperties": false
+}

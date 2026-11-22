@@ -1,0 +1,74 @@
+{
+  "name": "通用票据",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "invoice_number": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "发票号码"
+      },
+      "vendor": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "销售方"
+      },
+      "total": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "总金额"
+      },
+      "items": {
+        "type": "array",
+        "description": "商品明细表体",
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "品名"
+            },
+            "quantity": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "数量"
+            },
+            "amount": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "金额"
+            }
+          },
+          "required": [
+            "description",
+            "quantity",
+            "amount"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "invoice_number",
+      "vendor",
+      "total",
+      "items"
+    ],
+    "additionalProperties": false
+  },
+  "system_prompt": "Extract the requested data from the supplied document images. Return only a JSON object. Do not invent missing values; use null.",
+  "user_prompt": "Extract this document according to the JSON Schema below.\n{{schema}}\nInput: {{filename}}\nSource pages: {{pages}}"
+}

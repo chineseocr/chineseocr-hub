@@ -1,0 +1,7 @@
+ChineseOCR Hub
+Copyright 2026 ChineseOCR Hub contributors
+
+This is a standalone community and multi-tenant implementation. It contains no source files,
+customer templates, branding, model weights or activation logic copied from
+the legacy ocr-app-v7 distribution. Third-party dependencies retain their own
+licenses; see THIRD_PARTY_NOTICES.md and the installed packages' license files.

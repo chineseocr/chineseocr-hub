@@ -1,0 +1,42 @@
+services:
+  workbench:
+    # Built locally; no public registry image is assumed to exist.
+    image: chineseocr-hub:${WORKBENCH_IMAGE_TAG:-0.6.0a1}
+    build:
+      context: .
+      args:
+        PYTHON_IMAGE: ${WORKBENCH_PYTHON_IMAGE:-python:3.12-slim-bookworm}
+    ports:
+      - "127.0.0.1:${WORKBENCH_PORT:-8765}:8765"
+    environment:
+      WORKBENCH_MODE: ${WORKBENCH_MODE:-community}
+      WORKBENCH_ALLOW_REGISTRATION: ${WORKBENCH_ALLOW_REGISTRATION:-0}
+      WORKBENCH_ALLOWED_MODEL_BASES: ${WORKBENCH_ALLOWED_MODEL_BASES:-}
+      WORKBENCH_TOKEN: ${WORKBENCH_TOKEN:-}
+      WORKBENCH_MODEL_BASE_URL: ${WORKBENCH_MODEL_BASE_URL:-}
+      WORKBENCH_MODEL_NAME: ${WORKBENCH_MODEL_NAME:-}
+      WORKBENCH_MODEL_API_KEY: ${WORKBENCH_MODEL_API_KEY:-}
+      WORKBENCH_MODEL_LABEL: ${WORKBENCH_MODEL_LABEL:-Model service}
+    volumes:
+      - workbench-data:/app/data
+    # Resolve host model services on Linux Engine as well as Docker Desktop.
+    # The model must listen on an interface reachable from Docker's bridge.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 200s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 1g
+    cpus: 2
+    # Bound log growth; original files and databases live in the named volume.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  workbench-data:

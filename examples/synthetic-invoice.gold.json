@@ -1,0 +1,12 @@
+{
+  "invoice_number": "INV-2026-001",
+  "vendor": "Example Supplies",
+  "total": 120.0,
+  "items": [
+    {
+      "description": "Notebook",
+      "quantity": 3,
+      "amount": 120.0
+    }
+  ]
+}

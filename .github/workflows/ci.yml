@@ -1,0 +1,90 @@
+name: validate
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install --require-hashes -r requirements.lock
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check workbench tests scripts
+      - run: ruff format --check workbench tests scripts
+      - run: python -m pytest -q
+      - run: python scripts/generate_examples.py
+      - run: python scripts/build_release.py
+      - run: python scripts/verify_release.py dist/*.tar.gz --smoke
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pip-audit==2.10.1
+      - run: pip-audit -r requirements.lock --disable-pip --no-deps --progress-spinner off
+  container:
+    needs: [test, dependency-audit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --require-hashes -r requirements.lock
+      - name: Validate Compose configuration in both modes
+        run: |
+          docker compose config --quiet
+          WORKBENCH_MODE=saas docker compose config --quiet
+      - run: docker build -t chineseocr-hub:ci .
+      - name: Start, verify and restart an isolated container
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORKBENCH_SMOKE_TOKEN=$(python -c 'import secrets; print(secrets.token_urlsafe(32))')
+          export WORKBENCH_SMOKE_TOKEN
+          echo "::add-mask::$WORKBENCH_SMOKE_TOKEN"
+          cleanup() {
+            docker rm -f workbench-ci >/dev/null 2>&1 || true
+            docker volume rm workbench-ci-data >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          docker run -d --name workbench-ci --cap-drop ALL --security-opt no-new-privileges \
+            -p 127.0.0.1:18765:8765 -v workbench-ci-data:/app/data \
+            -e WORKBENCH_TOKEN="$WORKBENCH_SMOKE_TOKEN" chineseocr-hub:ci
+          test "$(docker exec workbench-ci id -u)" = 10001
+          python scripts/smoke_http.py --url http://127.0.0.1:18765 --marker-file "$RUNNER_TEMP/workbench-smoke-marker"
+          docker restart workbench-ci
+          python scripts/smoke_http.py --url http://127.0.0.1:18765 --marker-file "$RUNNER_TEMP/workbench-smoke-marker" --check-persistence
+
+      - name: Verify SaaS account isolation and restart persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cleanup() {
+            docker rm -f hub-saas-ci >/dev/null 2>&1 || true
+            docker volume rm hub-saas-ci-data >/dev/null 2>&1 || true
+            rm -f "$RUNNER_TEMP/hub-initial-admin.json"
+          }
+          trap cleanup EXIT
+          docker run -d --name hub-saas-ci --cap-drop ALL --security-opt no-new-privileges \
+            -p 127.0.0.1:18767:8765 -v hub-saas-ci-data:/app/data \
+            -e WORKBENCH_MODE=saas chineseocr-hub:ci
+          for attempt in {1..45}; do
+            if curl -fsS http://127.0.0.1:18767/healthz >/dev/null; then break; fi
+            sleep 1
+          done
+          docker cp hub-saas-ci:/app/data/saas/initial-admin.json "$RUNNER_TEMP/hub-initial-admin.json"
+          chmod 600 "$RUNNER_TEMP/hub-initial-admin.json"
+          python scripts/smoke_saas.py --url http://127.0.0.1:18767 --credentials-file "$RUNNER_TEMP/hub-initial-admin.json" --marker-file "$RUNNER_TEMP/hub-saas-marker"
+          docker restart --time 200 hub-saas-ci
+          python scripts/smoke_saas.py --url http://127.0.0.1:18767 --credentials-file "$RUNNER_TEMP/hub-initial-admin.json" --marker-file "$RUNNER_TEMP/hub-saas-marker" --check-persistence

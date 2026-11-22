@@ -1,0 +1,10 @@
+**
+!workbench/
+!workbench/**
+workbench/**/__pycache__/
+workbench/**/*.py[cod]
+workbench/**/.DS_Store
+!requirements.lock
+!LICENSE
+!NOTICE
+!THIRD_PARTY_NOTICES.md
