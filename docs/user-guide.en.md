@@ -80,7 +80,7 @@ Save reusable choices under **Dictionaries**, then copy a version into a field's
 
 ## 8. Multiple documents in one image
 
-Select the multiple-document task and optionally bind detected classes to field-application versions. The model localizes documents, the server makes real crops, and each instance is recognized separately. Same-class instances retain distinct IDs, boxes and results.
+Select the multiple-document task and optionally bind detected classes to field-application versions. The model localizes documents, the server makes real crops, and each instance is recognized separately. Same-class instances retain distinct IDs, boxes and results. The source overlay shows document boundaries by default; selecting or hovering text/fields shows only the corresponding instance location.
 
 Unconfigured classes use full-text OCR. The limit is 12 instances per page; automatic front/back pairing is not implemented. Expect one localization request plus a recognition request per instance, with potential additional contextual-localization requests.
 

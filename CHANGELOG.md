@@ -2,6 +2,9 @@
 
 ## 0.6.0a1 — 2026-11-22 — Tables and reversible localization
 
+- Clarify multi-document source review: show physical-document boundaries by default and reveal individual text/field positions on selection or hover.
+- Request separate, tightly bounded OCR lines instead of a single document-sized text block.
+
 - Simplify bilingual README files, add nine usage walkthroughs and a generated two-invoice example, and organize reference documentation around current project behavior.
 
 - Add bilingual Qwen3-VL/vLLM GPU Compose and OpenAI API connection tutorials, linked from README, UI and operations guides. Add explicit compatible/OpenAI request profiles with legacy-safe defaults, environment/CLI support and local HTTP regressions; no automatic parameter retries.

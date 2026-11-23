@@ -233,9 +233,16 @@ function drawReviewOverlay() {
     overlay.setAttribute("viewBox", `0 0 ${page.width} ${page.height}`);
     const selected = review.hover || review.focus;
     // Draw active regions last so their hit target stays reachable above table borders.
-    const entries = [...review.items.values()].filter(({
-        item
-    }) => item.file === state.preview && item.page === state.previewPage && item.box);
+    const entries = [...review.items.values()].filter(({ item, element }) => {
+        if (item.file !== state.preview || item.page !== state.previewPage || !item.box) return false;
+        // A mixed page has two distinct overlay levels: physical documents and
+        // text inside each crop. Keep every document boundary visible, but show
+        // an instance's text/field box only when that result is selected or
+        // hovered. Drawing every crop's OCR boxes together obscures the paper
+        // boundaries and makes it hard to tell which instance a box belongs to.
+        const inDocument = element.closest(".review-document-card");
+        return !inDocument || element.classList.contains("review-document-title") || item.reviewId === selected;
+    });
     entries.sort((a, b) => Number(a.item.reviewId === selected) - Number(b.item.reviewId === selected));
     for (const {
             item
